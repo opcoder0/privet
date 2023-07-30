@@ -18,14 +18,14 @@ import sys
 from lib import text
 
 
-def text_search(pattern, file_paths):
+def text_search(file_paths):
     t = text.Text()
-    t.search(pattern, file_paths)
+    t.search(file_paths)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        sys.stderr.write("Usage: {} \"regex\" [paths]\n".format(sys.argv[0]))
+    if len(sys.argv) < 2:
+        sys.stderr.write("Usage: {} [paths]\n".format(sys.argv[0]))
         sys.exit(1)
 
-    text_search(sys.argv[1], sys.argv[2:])
+    text_search(sys.argv[1:])
