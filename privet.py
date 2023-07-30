@@ -14,18 +14,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import sys
 from pkg import text
 
 
-def text_search(file_paths):
+def text_search(path_args):
     t = text.Text()
+    file_paths = path_args.split(",")
     t.search(file_paths)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        sys.stderr.write("Usage: {} [paths]\n".format(sys.argv[0]))
-        sys.exit(1)
 
-    text_search(sys.argv[1:])
+    parser = argparse.ArgumentParser(
+        description=
+        "Search for confidential data in files. Requires atleast one file type to run"
+    )
+    parser.add_argument("-t",
+                        "--text",
+                        metavar='/path1,/path2,...',
+                        type=str,
+                        action='store',
+                        help="search text files")
+    parser.add_argument("-p",
+                        "--pdf",
+                        type=str,
+                        metavar='/path1,/path2,...',
+                        action='store',
+                        help="search PDF files")
+    args = parser.parse_args()
+    if args.text:
+        print("text path: {}".format(args.text))
+        text_search(args.text)
+    else:
+        parser.print_help()
