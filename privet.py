@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import sys
-from lib import text
+from pkg import text
 
 
 def text_search(file_paths):
