@@ -57,3 +57,25 @@ class CreditCard:
         if jcb is not None:
             return "JCB"
         return "Invalid/Unknown"
+
+    # Luhn algorithm to check if card is valid
+    # implementation based on
+    # https://en.wikipedia.org/wiki/Luhn_algorithm
+    def is_valid(self, card_number):
+
+        sums = 0
+        n = len(card_number)
+        alt = False
+        for i in reversed(range(n)):
+            if (i == n - 1):
+                alt = True
+                continue
+            if (alt is False):
+                sums += int(card_number[i])
+                alt = True
+            else:
+                v = int(card_number[i]) * 2
+                sums += ((v // 10) + (v % 10))
+                alt = False
+
+        return ((10 - (sums % 10)) == (int(card_number[n - 1])))

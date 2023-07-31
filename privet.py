@@ -47,5 +47,7 @@ if __name__ == '__main__':
     if args.text:
         print("text path: {}".format(args.text))
         text_search(args.text)
+    elif args.pdf:
+        print("pdf search: not supported yet!")
     else:
         parser.print_help()

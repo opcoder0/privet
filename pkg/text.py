@@ -43,12 +43,12 @@ class Text:
             print("{} credit card(s) found".format(nresults))
             for file in results:
                 for match in file.matches:
-                    print("file: {}, match: {}, start: {} / end: {}, type: {}".
-                          format(
-                              file.file, match.match, match.byte_start,
-                              match.byte_end,
-                              self.cc.card_type(match.match.replace(" ", ""))))
-
+                    card_number = match.match.replace(" ", "")
+                    card_type = self.cc.card_type(card_number)
+                    is_valid = self.cc.is_valid(card_number)
+                    print(
+                        f"Card: {card_number}, Type: {card_type}, Valid: {is_valid}, File: {file.file}"
+                    )
         # Free all resources.
         if nresults:
             libag.ag_free_all_results(results)
