@@ -1,4 +1,4 @@
-from .. import iban
+from privet.types import iban
 
 
 def test_iban_is_registered_ok():

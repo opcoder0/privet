@@ -16,7 +16,7 @@
 
 import argparse
 import sys
-from pkg import text
+from privet.search import text
 
 
 def text_search(path_args):

@@ -15,9 +15,9 @@
 # limitations under the License.
 
 import sys
-from . import libag
-from . import credit_card
-from . import iban
+from privet.search.linux_x64 import libag
+from privet.types import cards
+from privet.types import iban
 
 
 class Text:
@@ -25,7 +25,7 @@ class Text:
     def __init__(self):
         # Initiate Ag library with default options.
         libag.ag_init()
-        self.cc = credit_card.CreditCard()
+        self.cc = cards.CreditCard()
         self.iban = iban.Iban()
 
     def __del__(self):
