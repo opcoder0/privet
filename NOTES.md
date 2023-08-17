@@ -35,6 +35,12 @@ First step is having a data classification standard. After that data needs to be
 * https://www.iban.com/structure
 * https://helpx.adobe.com/au/acrobat/using/add-watermarks-pdfs.html
 
-## Detection
+### Detection library
 
-Open-source NLP library https://spacy.io/usage/spacy-101
+* Open-source NLP library https://spacy.io/usage/spacy-101
+
+## Machine Readable Passport
+
+http://www.highprogrammer.com/alan/numbers/mrp.html
+
+For passport analysis based on `git@github.com:vaasha/Data-Analysis_in-Examples.git` see [Passport Analysis Notes](./data/README_Passport.md)
