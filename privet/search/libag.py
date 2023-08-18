@@ -18,15 +18,17 @@ import sys
 from privet.search.linux_x64 import libag
 from privet.types import cards
 from privet.types import iban
+from privet.types import passport
 
 
-class Text:
+class Ag:
 
     def __init__(self):
         # Initiate Ag library with default options.
         libag.ag_init()
         self.cc = cards.CreditCard()
         self.iban = iban.Iban()
+        self.passport = passport.Passport()
 
     def __del__(self):
         # Release Ag resources.

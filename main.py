@@ -16,11 +16,18 @@
 
 import argparse
 import sys
-from privet.search import text
+from privet.search import libag
+from privet.search import native
+
+
+def native_search(path_args):
+    t = native.Native()
+    file_paths = path_args.split(",")
+    t.search(file_paths)
 
 
 def text_search(path_args):
-    t = text.Text()
+    t = libag.Text()
     file_paths = path_args.split(",")
     t.search(file_paths)
 
@@ -46,7 +53,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.text:
         print("text path: {}".format(args.text))
-        text_search(args.text)
+        native_search(args.text)
     elif args.pdf:
         print("pdf search: not supported yet!")
     else:
