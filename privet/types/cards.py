@@ -100,6 +100,7 @@ class CreditCard:
         self.re_amex = re.compile(amex_card)
         # anything like a card number
         self.any_cc_rex = r'(\b\d{4}\s+\d{4}\s+\d{4}\s+\d{4}\b)|(\b\d{16}\b)|(\b\d{15}\b)|(\b\d{4}\s+\d{4}\s+\d{4}\s+\d{3}\b)'
+        self.keywords = keywords
 
     def card_type(self, card_number):
         visa = self.re_visa.match(card_number)

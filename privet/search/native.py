@@ -31,8 +31,12 @@ class Native:
 
     def search(self, file_paths):
         # search credit card
-        n_cards, cards = self.pathfinder.find(self.cc.any_cc_rex, file_paths,
-                                              'txt', True)
+        n_cards, cards = self.pathfinder.find(self.cc.any_cc_rex,
+                                              file_paths,
+                                              'txt',
+                                              True,
+                                              self.cc.keywords,
+                                              window_size=250)
         print("Found {} cards".format(n_cards))
         for card in cards:
             card_number = card['match']
@@ -44,8 +48,9 @@ class Native:
             line = card['line']
             begin = card['begin']
             end = card['end']
+            keyword_found = card['keyword_found']
             print(
-                'f:{fname},cc:{cc},t:{cctype},v:{valid},p:{page},l:{line},b:{bp},e:{ep}'
+                'f:{fname},cc:{cc},t:{cctype},v:{valid},p:{page},l:{line},b:{bp},e:{ep},keyword_found:{kw}'
                 .format(fname=filename,
                         cc=card_number,
                         cctype=card_type,
@@ -53,7 +58,8 @@ class Native:
                         page=page,
                         line=line,
                         bp=begin,
-                        ep=end))
+                        ep=end,
+                        kw=keyword_found))
         # search IBAN
         n_ibans, ibans = self.pathfinder.find(self.iban.any_iban_rex,
                                               file_paths, 'txt', True)
@@ -67,12 +73,14 @@ class Native:
             line = iban['line']
             begin = iban['begin']
             end = iban['end']
+            keyword_found = iban['keyword_found']
             print(
-                'f:{fname},cc:{iban},v:{valid},p:{page},l:{line},b:{bp},e:{ep}'
+                'f:{fname},cc:{iban},v:{valid},p:{page},l:{line},b:{bp},e:{ep},keyword_found:{kw}'
                 .format(fname=filename,
                         iban=iban_number,
                         valid=is_valid,
                         page=page,
                         line=line,
                         bp=begin,
-                        ep=end))
+                        ep=end,
+                        kw=keyword_found))

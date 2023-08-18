@@ -29,7 +29,13 @@ class Pathfinder:
     # returns
     #  nresults: number of occurances of the string matching the regexp
     #  results: a list of results indicating filename and position in the file
-    def find(self, regexp, filepaths, file_extension, recurse):
+    def find(self,
+             regexp,
+             filepaths,
+             file_extension,
+             recurse,
+             keywords=None,
+             window_size=0):
         nresults = 0
         results = []
         rex = re.compile(regexp)
@@ -41,31 +47,61 @@ class Pathfinder:
                 search_path = search_path.joinpath('*')
             extn = '*.{ext}'.format(ext=file_extension)
             search_path = search_path.joinpath(extn)
+            save_prev = 0
+            save_curr = 0
+            curr_pos = 0
+            nwords = 0
+            look_around = False
+            if keywords is not None and len(keywords) > 0 and window_size > 0:
+                look_around = True
             for filename in glob.iglob(search_path.as_posix(),
                                        recursive=recurse):
+                save_prev = 0
+                save_curr = 0
                 with open(filename, 'r+b') as file:
                     mm = mmap.mmap(file.fileno(), 0)
                     done = False
                     line_count = 0
                     while not done:
                         line = mm.readline()
-                        if len(line) == 0:
+                        if line == b'':
                             done = True
                         else:
+                            line = str(line)
                             line_count += 1
-                            # TODO handle more than one occurance/match on
-                            # the same line
-                            match = rex.search(str(line))
+                            nwords += len(line.split(' '))
+                            if nwords >= window_size:
+                                save_prev = save_curr
+                                save_curr = mm.tell()
+                                nwords = 0
+                            match = rex.search(line)
+                            keyword_found = False
                             if match is not None:
                                 begin, end = match.span()
+                                if look_around is True:
+                                    # look for keywords in the
+                                    # 'window_size' window.
+                                    save = mm.tell()
+                                    # check if we have the number words in the window
+                                    # if not use the previous saved window
+                                    mm.seek(save_curr)
+                                    data = str(mm.read(save - save_curr))
+                                    if len(data.split(' ')) < window_size:
+                                        mm.seek(save_prev)
+                                        data = str(mm.read(save - save_prev))
+                                    for keyword in keywords:
+                                        if data.find(keyword):
+                                            keyword_found = True
+                                            break
                                 nresults += 1
                                 result = {
                                     'filename': filename,
                                     'match': match.group(),
                                     'page': 0,
                                     'line': line_count,
-                                    'begin': begin,
-                                    'end': end
+                                    'begin': begin - 2,
+                                    'end': end - 2,
+                                    'keyword_found': keyword_found
                                 }
                                 results.append(result)
                     mm.close()
