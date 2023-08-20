@@ -29,48 +29,105 @@ import privet
 
 class Pathfinder:
 
-    def cleanup_words(self, lines):
-        result = []
-        clean_line = []
-        backup = []
-        for line in lines:
-            backup = []
-            words = line.split(' ')
-            if len(words) <= 1:
-                result.append(line)
-                continue
-            nwords = len(words)
-            cword = ''
-            clean_line = []
-            for i in range(nwords):
-                cword += words[i]
-                is_word = (cword.lower() in privet.wordset)
-                # longest word in english_words set with web2 and gcide is 45
-                # characters long. In case there is no meaningful word found
-                # despite reaching this length just merge them as-is.
-                if (not is_word and len(''.join(backup)) <= 45):
-                    backup.append(words[i])
-                else:
-                    if len(backup) > 0:
-                        clean_line += backup
-                        backup = []
+    # PDF to text conviersion is a pain as there can be unexpected spaces
+    # in words and some of those part words can be real dictionary words.
+    # The function tries to stich up broken words to the best possible
+    # word based on what is found in dictionary. If a part of a broken word
+    # happens to be a dictionary word this algorithm just chucks the broken
+    # word as-is. This could lead to further issues on that line.
+    # def cleanup_words(self, lines):
+    #     result = []
+    #     clean_line = []
+    #     backup = []
+    #     for line in lines:
+    #         backup = []
+    #         inbackup = False
+    #         words = line.split(' ')
+    #         if len(words) <= 1:
+    #             result.append(line)
+    #             continue
+    #         nwords = len(words)
+    #         cword = ''
+    #         clean_line = []
+    #         for i in range(nwords):
+    #             cword += words[i]
+    #             is_word = (cword.lower() in privet.wordset)
+    #             # longest word in english_words set with web2 and gcide is 45
+    #             # characters long. In case there is no meaningful word found
+    #             # despite reaching this length just merge them as-is.
+    #             if (not is_word and len(''.join(backup)) <= 45):
+    #                 backup.append(words[i])
+    #                 inbackup = True
+    #             else:
+    #                 if not is_word and len(backup) > 0:
+    #                     clean_line += backup
+    #                     backup = []
+    #                     inbackup = False
 
-                if (not cword.isalpha()):
-                    if len(backup) > 0:
-                        clean_line += backup
-                    else:
-                        clean_line.append(words[i])
-                    cword = ''
-                    backup = []
+    #             if (not cword.isalpha() and not inbackup):
+    #                 if len(backup) > 0:
+    #                     clean_line += backup
+    #                 else:
+    #                     clean_line.append(words[i])
+    #                 cword = ''
+    #                 backup = []
+    #                 inbackup = False
+    #                 continue
+    #             if is_word:
+    #                 clean_line.append(cword)
+    #                 cword = ''
+    #                 backup = []
+    #                 inbackup = False
+    #         if len(backup) > 0:
+    #             clean_line += backup
+    #         result.append(' '.join(clean_line))
+    #     return result
+
+    # simplify
+    def cleanup_words(self, elines):
+        # line is a cleaned line of text string
+        # lines is the cleaned lines that is returned
+        # eline is a line before processing (error-line)
+        # broken is a list that holds broken up words
+        line = ''
+        lines = []
+        broken = []
+        for eline in elines:
+            words = eline.split(' ')
+            nwords = len(words)
+            merged_word = ''
+            line = ''
+            for i in range(nwords):
+                is_a_word = words[i].lower() in privet.wordset
+                if is_a_word:
+                    if len(broken) > 0:
+                        line = line + ' ' + ' '.join(broken)
+                    line = line + ' ' + words[i]
+                    broken = []
                     continue
-                if is_word:
-                    clean_line.append(cword)
-                    cword = ''
-                    backup = []
-            if len(backup) > 0:
-                clean_line += backup
-            result.append(' '.join(clean_line))
-        return result
+                if words[i].endswith('.') or words[i].endswith(';') or words[
+                        i].endswith(':') or words[i].endswith(','):
+                    if words[i][:-1].lower() in privet.wordset:
+                        if len(broken) > 0:
+                            line += ' '.join(broken)
+                        line = line + ' ' + words[i]
+                        broken = []
+                        continue
+                    else:
+                        line = line + ' ' + words[i]
+                        broken = []
+                        continue
+                merged_word += words[i]
+                broken.append(words[i])
+                if merged_word.lower() in privet.wordset:
+                    line = line + ' ' + merged_word
+                    merged_word = ''
+                    broken = []
+            if len(broken) > 0:
+                line = line + ' ' + ' '.join(broken)
+                broken = []
+            lines.append(line)
+        return lines
 
     def num_words(self, lines):
         nwords = 0
@@ -225,6 +282,7 @@ class Pathfinder:
                         format(filename))
                     continue
 
+                data = ''
                 reader = PdfReader(filename)
                 npages = len(reader.pages)
                 line_count = 0

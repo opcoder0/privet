@@ -28,7 +28,7 @@ def init():
     privet_words_file = os.path.join(home_dir, '.privet', 'words.txt')
     with open(privet_words_file, 'r') as fp:
         for line in fp:
-            wordset.add(line.lower())
+            wordset.add(line.strip().lower())
 
 
 # load word list
