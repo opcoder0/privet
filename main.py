@@ -15,15 +15,18 @@
 # limitations under the License.
 
 import argparse
-import sys
+from pathlib import Path
+import os
 from privet.search import libag
 from privet.search import native
+import sys
+import shutil
 
 
-def native_search(path_args):
+def native_search(path_args, extn):
     t = native.Native()
     file_paths = path_args.split(",")
-    t.search(file_paths)
+    t.search(file_paths, extn)
 
 
 def text_search(path_args):
@@ -32,8 +35,31 @@ def text_search(path_args):
     t.search(file_paths)
 
 
+def copy_words_file():
+    home_dir = Path.home()
+    privet_dir = os.path.join(home_dir, '.privet')
+    mod_path = os.path.dirname(__file__)
+    words_file = os.path.join(mod_path, 'words.txt')
+    privet_words_file = os.path.join(home_dir, '.privet', 'words.txt')
+    shutil.copyfile(words_file, privet_words_file)
+
+
+def privet_init():
+    home_dir = Path.home()
+    privet_dir = os.path.join(home_dir, '.privet')
+    is_dir = os.path.isdir(privet_dir)
+    if is_dir:
+        words_file = os.path.join(privet_dir, 'words.txt')
+        if not os.path.exists(words_file):
+            copy_words_file()
+    else:
+        os.mkdir(privet_dir)
+        copy_words_file()
+
+
 if __name__ == '__main__':
 
+    privet_init()
     parser = argparse.ArgumentParser(
         description=
         "Search for confidential data in files. Requires atleast one file type to run"
@@ -53,8 +79,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.text:
         print("text path: {}".format(args.text))
-        native_search(args.text)
+        native_search(args.text, 'txt')
     elif args.pdf:
-        print("pdf search: not supported yet!")
+        print("text path: {}".format(args.pdf))
+        native_search(args.pdf, 'pdf')
     else:
         parser.print_help()

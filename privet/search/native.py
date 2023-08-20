@@ -29,11 +29,11 @@ class Native:
         self.passport = passport.Passport()
         self.pathfinder = pathfinder.Pathfinder()
 
-    def search(self, file_paths):
+    def search(self, file_paths, extn):
         # search credit card
         n_cards, cards = self.pathfinder.find(self.cc.any_cc_rex,
                                               file_paths,
-                                              'txt',
+                                              extn,
                                               True,
                                               self.cc.keywords,
                                               window_size=250)
@@ -62,7 +62,7 @@ class Native:
                         kw=keyword_found))
         # search IBAN
         n_ibans, ibans = self.pathfinder.find(self.iban.any_iban_rex,
-                                              file_paths, 'txt', True)
+                                              file_paths, extn, True)
         print("Found {} IBANs".format(n_ibans))
         for iban in ibans:
             iban_number = iban['match']
