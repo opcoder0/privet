@@ -16,9 +16,12 @@
 
 import pathlib
 import os
+import sys
 
 
 def init():
+    if len(sys.argv) == 1:
+        return
     if len(wordset) > 0:
         return
     home_dir = pathlib.Path.home()
@@ -26,7 +29,6 @@ def init():
     with open(privet_words_file, 'r') as fp:
         for line in fp:
             wordset.add(line.lower())
-    print('Wordlist load complete...')
 
 
 # load word list
