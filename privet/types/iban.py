@@ -16,12 +16,16 @@
 
 import re
 
+keywords = ['IBAN', 'International Bank Account Number']
+
 
 class Iban:
 
     def __init__(self):
         # list of registered and partially registered countries
         # https://www.iban.com/structure
+
+        self.keywords = keywords
 
         # list of registered countries
         self.iban_register_by_countrycode = {

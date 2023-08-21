@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import sys
 from privet.search import pathfinder
 from privet.types import cards
@@ -29,58 +30,41 @@ class Native:
         self.passport = passport.Passport()
         self.pathfinder = pathfinder.Pathfinder()
 
+    def print_results(self, r_type, n_results, results):
+        if n_results == 0:
+            return
+        for result in results:
+            result_json = {'type': r_type, 'result': result, 'details': {}}
+            if r_type == 'card':
+                card_number = result['match'].replace(" ", "")
+                is_valid = self.cc.is_valid(card_number)
+                card_type = self.cc.card_type(card_number)
+                result_json['details']['valid'] = is_valid
+                result_json['details']['cardtype'] = card_type
+            elif r_type == 'iban':
+                iban_number = result['match'].replace(" ", "")
+                is_valid = self.iban.is_valid(iban_number)
+                result_json['details']['valid'] = is_valid
+            print(json.dumps(result_json, sort_keys=True, indent=4))
+
     def search(self, file_paths, extn):
-        # search credit card
-        n_cards, cards = self.pathfinder.find(self.cc.any_cc_rex,
-                                              file_paths,
-                                              extn,
-                                              True,
-                                              self.cc.keywords,
-                                              window_size=250)
-        print("Found {} cards".format(n_cards))
-        for card in cards:
-            card_number = card['match']
-            card_number = card_number.replace(" ", "")
-            is_valid = self.cc.is_valid(card_number)
-            card_type = self.cc.card_type(card_number)
-            filename = card['filename']
-            page = card['page']
-            line = card['line']
-            begin = card['begin']
-            end = card['end']
-            keyword_found = card['keyword_found']
-            print(
-                'f:{fname},cc:{cc},t:{cctype},v:{valid},p:{page},l:{line},b:{bp},e:{ep},keyword_found:{kw}'
-                .format(fname=filename,
-                        cc=card_number,
-                        cctype=card_type,
-                        valid=is_valid,
-                        page=page,
-                        line=line,
-                        bp=begin,
-                        ep=end,
-                        kw=keyword_found))
-        # search IBAN
-        n_ibans, ibans = self.pathfinder.find(self.iban.any_iban_rex,
-                                              file_paths, extn, True)
-        print("Found {} IBANs".format(n_ibans))
-        for iban in ibans:
-            iban_number = iban['match']
-            iban_number = iban_number.replace(" ", "")
-            is_valid = self.iban.is_valid(iban_number)
-            filename = iban['filename']
-            page = iban['page']
-            line = iban['line']
-            begin = iban['begin']
-            end = iban['end']
-            keyword_found = iban['keyword_found']
-            print(
-                'f:{fname},cc:{iban},v:{valid},p:{page},l:{line},b:{bp},e:{ep},keyword_found:{kw}'
-                .format(fname=filename,
-                        iban=iban_number,
-                        valid=is_valid,
-                        page=page,
-                        line=line,
-                        bp=begin,
-                        ep=end,
-                        kw=keyword_found))
+        filenames = self.pathfinder.findfiles(file_paths, extn, True)
+        query = {
+            'card': (self.cc.any_cc_rex, self.cc.keywords),
+            'iban': (self.iban.any_iban_rex, self.iban.keywords),
+        }
+        for q_type, q_options in query.items():
+            for filename in filenames:
+                if extn == 'txt':
+                    n_results, results = self.pathfinder.txt(q_options[0],
+                                                             filename,
+                                                             q_options[1],
+                                                             window_size=250)
+                elif extn == 'pdf':
+                    n_results, results = self.pathfinder.pdf(q_options[0],
+                                                             filename,
+                                                             q_options[1],
+                                                             window_size=250)
+                else:
+                    raise Exception("Unsupported file extension")
+                self.print_results(q_type, n_results, results)
