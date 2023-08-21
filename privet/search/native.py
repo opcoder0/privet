@@ -58,15 +58,15 @@ class Native:
         for q_type, q_options in query.items():
             for filename in filenames:
                 if extn == 'txt':
-                    n_results, results = self.scout.txt(q_options[0],
-                                                        filename,
-                                                        q_options[1],
-                                                        window_size=250)
+                    n_results, results = self.scout.txt_file(q_options[0],
+                                                             filename,
+                                                             q_options[1],
+                                                             window_size=250)
                 elif extn == 'pdf':
-                    n_results, results = self.scout.pdf(q_options[0],
-                                                        filename,
-                                                        q_options[1],
-                                                        window_size=250)
+                    n_results, results = self.scout.pdf_file(q_options[0],
+                                                             filename,
+                                                             q_options[1],
+                                                             window_size=250)
                 else:
                     raise Exception("Unsupported file extension")
                 self.print_results(q_type, n_results, results)
