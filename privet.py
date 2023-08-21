@@ -78,10 +78,8 @@ if __name__ == '__main__':
                         help="search PDF files")
     args = parser.parse_args()
     if args.text:
-        print("text path: {}".format(args.text))
         native_search(args.text, 'txt')
     elif args.pdf:
-        print("text path: {}".format(args.pdf))
         native_search(args.pdf, 'pdf')
     else:
         parser.print_help()
