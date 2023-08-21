@@ -23,7 +23,6 @@ import privet
 
 
 class Scout:
-
     # PDF to text conviersion is a pain as there can be unexpected spaces
     # in words and some of those part words can be real dictionary words.
     # The function tries to stich up broken words to the best possible
@@ -43,34 +42,77 @@ class Scout:
             nwords = len(words)
             merged_word = ''
             line = ''
-            for i in range(nwords):
+            gobble_limit = 3
+            i = 0
+            while i < nwords:
                 is_a_word = words[i].lower() in privet.wordset
                 if is_a_word:
+                    # do optimistic gobbling to see if I can get a longer word
+                    # due to erratic spacing issues with PDF conversion to text
+                    #
+                    # backtrack if there is anything in broken list. start from
+                    # that point
                     if len(broken) > 0:
-                        line = line + ' ' + ' '.join(broken)
-                    line = line + ' ' + words[i]
+                        pos = 1
+                        i = list(map(lambda x: x[pos], broken))[0]
+                        broken = []
+                    gword = words[i]
+                    gwlist = []
+                    gwlen = 0
+                    k = 1
+                    for j in range(i + 1, nwords):
+                        if k > gobble_limit:
+                            break
+                        k += 1
+                        if j < nwords:
+                            gword += words[j]
+                            if gword.lower() in privet.wordset:
+                                gwlist.append(gword)
+                                i = j
+                    gwlen = len(gwlist)
+                    if gwlen > 0:
+                        if len(broken) > 0:
+                            pos = 0
+                            broken_words = list(map(lambda x: x[pos], broken))
+                            line = line + ' ' + ' '.join(broken_words)
+                        line = line + ' ' + gwlist[-1]
+                    else:
+                        # the word did not get any bigger after merging forward
+                        if len(broken) > 0:
+                            pos = 0
+                            broken_words = list(map(lambda x: x[pos], broken))
+                            line = line + ' ' + ' '.join(broken_words)
+                        line = line + ' ' + words[i]
                     broken = []
+                    i += 1
                     continue
                 if words[i].endswith('.') or words[i].endswith(';') or words[
                         i].endswith(':') or words[i].endswith(','):
                     if words[i][:-1].lower() in privet.wordset:
                         if len(broken) > 0:
-                            line += ' '.join(broken)
+                            pos = 0
+                            broken_words = list(map(lambda x: x[pos], broken))
+                            line += ' '.join(broken_words)
                         line = line + ' ' + words[i]
                         broken = []
+                        i += 1
                         continue
                     else:
                         line = line + ' ' + words[i]
                         broken = []
+                        i += 1
                         continue
                 merged_word += words[i]
-                broken.append(words[i])
+                broken.append((words[i], i))
+                i += 1
                 if merged_word.lower() in privet.wordset:
                     line = line + ' ' + merged_word
                     merged_word = ''
                     broken = []
             if len(broken) > 0:
-                line = line + ' ' + ' '.join(broken)
+                pos = 0
+                broken_words = list(map(lambda x: x[pos], broken))
+                line = line + ' ' + ' '.join(broken_words)
                 broken = []
             lines.append(line)
         return lines
