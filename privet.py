@@ -19,6 +19,8 @@ from pathlib import Path
 import os
 from privet.search import libag
 from privet.search import native
+from privet.search import nlp
+from privet.search import classify
 import sys
 import shutil
 
@@ -29,10 +31,17 @@ def native_search(path_args, extn):
     t.search(file_paths, extn)
 
 
-def text_search(path_args):
+def text_search(path_args, extn):
     t = libag.Text()
     file_paths = path_args.split(",")
-    t.search(file_paths)
+    t.search(file_paths, extn)
+
+
+def nlp_search(path_args, extn):
+    pipeline = nlp.Nlp()
+    classifier = classify.Classify(pipeline)
+    file_paths = path_args.split(",")
+    classifier.search(file_paths, extn)
 
 
 def copy_words_file():
@@ -66,20 +75,54 @@ if __name__ == '__main__':
     )
     parser.add_argument("-t",
                         "--text",
-                        metavar='/path1,/path2,...',
-                        type=str,
-                        action='store',
+                        action='store_false',
                         help="search text files")
     parser.add_argument("-p",
                         "--pdf",
+                        action='store_false',
+                        help="search PDF files")
+    parser.add_argument("-d",
+                        "--dir",
                         type=str,
                         metavar='/path1,/path2,...',
                         action='store',
-                        help="search PDF files")
+                        help="search path to find files")
+    parser.add_argument(
+        "-s",
+        "--searchtype",
+        type=str,
+        action='store',
+        help="search technique; supported values one of: 'nlp' or 'filter'")
+
     args = parser.parse_args()
-    if args.text:
-        native_search(args.text, 'txt')
-    elif args.pdf:
-        native_search(args.pdf, 'pdf')
-    else:
+    if not args.dir:
+        print('Missing mandatory argument: directory path to search files\n')
         parser.print_help()
+        exit(1)
+    if not args.searchtype:
+        print(
+            'Missing mandatory argument: method to use for searching files\n')
+        parser.print_help()
+        exit(1)
+
+    if args.searchtype.strip() != 'nlp' and args.searchtype.strip(
+    ) != 'filter':
+        print('Invalid value for searchtype\n')
+        parser.print_help()
+        exit(1)
+
+    if args.text is False and args.pdf is False:
+        print('Must specify atleast one file type to search\n')
+        parser.print_help()
+        exit(1)
+
+    if args.searchtype.strip() == 'nlp':
+        if args.text:
+            nlp_search(args.dir, 'txt')
+        else:
+            nlp_search(args.dir, 'pdf')
+    elif args.searchtype.strip() == 'filter':
+        if args.text:
+            native_search(args.dir, 'txt')
+        else:
+            native_search(args.dir, 'pdf')

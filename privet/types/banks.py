@@ -809,6 +809,16 @@ bank_names = [
     'Yorkshire Building Society', 'Zag Bank', 'Zagrebacka Banka', 'Zamanbank',
     'Zambia National Commercial Bank', 'Zarai Taraqiati Bank Limited',
     'ZAO Raiffeisenbank', 'Zenith Bank', 'Zhejiang Chouzhou Commercial Bank',
-    'Zhejiang Tailong Commercial Bank', 'Zions Bancorporation', 'Ziraat Bankası',
-    'Ziraat Katılım', 'Zuger Kantonalbank', 'Zurich Cantonal Bank'
+    'Zhejiang Tailong Commercial Bank', 'Zions Bancorporation',
+    'Ziraat Bankası', 'Ziraat Katılım', 'Zuger Kantonalbank',
+    'Zurich Cantonal Bank', 'Commerce Bank'
+]
+
+statement_keywords = [
+    'swift bank code', 'correspondent bank', 'base currency', 'usa account',
+    'holder address', 'bank address', 'information account', 'fund transfers',
+    'bank charges', 'bank details', 'banking information', 'full names',
+    'account balance', 'opening balance', 'balance', 'transaction',
+    'transaction details', 'debit', 'credit', 'account number',
+    'account details', 'credit card number', 'card number'
 ]
