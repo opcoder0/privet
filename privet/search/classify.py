@@ -51,6 +51,14 @@ class Classify:
             search_results.append(result)
         return search_results
 
+    def analyze(self, search_results, context):
+        mb = None
+        if context == 'Australia':
+            mb = australia.Australia()
+
+        if mb is not None:
+            mb.analyze(search_results)
+
     def classify(self, pages, mb: MatcherBase):
 
         all_text = ' '.join(pages)

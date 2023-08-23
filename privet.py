@@ -40,12 +40,14 @@ def text_search(path_args, extn):
     t.search(file_paths, extn)
 
 
-def nlp_search(path_args, extn, context):
+def nlp_search(path_args, extn, context, verbose):
     pipeline = nlp.Nlp()
     classifier = classify.Classify(pipeline)
     file_paths = path_args.split(",")
     results = classifier.search(file_paths, extn, context)
-    print(json.dumps(results, sort_keys=True, indent=4))
+    classifier.analyze(results, context)
+    if verbose:
+        print(json.dumps(results, sort_keys=True, indent=4))
 
 
 def copy_words_file():
@@ -105,6 +107,11 @@ if __name__ == '__main__':
         action='store',
         help='search namespace can indicate region or search domain')
 
+    parser.add_argument('-v',
+                        '--verbose',
+                        action='store_true',
+                        help='verbose output')
+
     args = parser.parse_args()
     if not args.dir:
         print()
@@ -141,9 +148,9 @@ if __name__ == '__main__':
 
     if args.searchtype.strip() == 'nlp':
         if args.text:
-            nlp_search(args.dir, 'txt', args.namespace.strip())
+            nlp_search(args.dir, 'txt', args.namespace.strip(), args.verbose)
         else:
-            nlp_search(args.dir, 'pdf', args.namespace.strip())
+            nlp_search(args.dir, 'pdf', args.namespace.strip(), args.verbose)
     elif args.searchtype.strip() == 'filter':
         if args.text:
             native_search(args.dir, 'txt')

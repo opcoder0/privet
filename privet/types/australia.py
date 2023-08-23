@@ -17,8 +17,10 @@
 # list of all bank names by alphabetical order
 # source https://en.wikipedia.org/wiki/List_of_banks_in_Australia
 
+import pathlib
 from privet.types import cards
 from privet.types.matcher_base import MatcherBase
+from tabulate import tabulate
 
 bank_names_keywords = [
     'Alex Bank', 'AMP Bank', 'Australia & New Zealand Banking Group (ANZ)',
@@ -205,3 +207,51 @@ class Australia(MatcherBase):
 
     def get_matchers(self):
         return self.patterns
+
+    def analyze(self, search_results):
+        analysis = []
+        for result in search_results:
+            row = []
+            for filename, result_list in result.items():
+                row.append(pathlib.Path(filename).name)
+                entity = result_list[0]
+                searches = result_list[1]
+                if entity.get('ORG') is not None:
+                    row.append('Yes')
+                else:
+                    row.append('No')
+                if entity.get('PERSON') is not None:
+                    row.append('Yes')
+                else:
+                    row.append('No')
+                if entity.get('MONEY') is not None:
+                    row.append('Yes')
+                else:
+                    row.append('No')
+                for search in searches:
+                    i = 0
+                    for k, v in search.items():
+                        v_kw = v['keywords']
+                        v_re = v['regex']
+                        in_regex_len = len(matcher_patterns[i]['regex'])
+                        i += 1
+                        if v_kw > 0 and v_re > 0:
+                            row.append('Very Likely')
+                        elif v_kw > 0 and v_re == 0:
+                            if in_regex_len == 0:
+                                row.append('Very Likely')
+                            else:
+                                row.append('Unlikely')
+                        elif v_kw == 0 and v_re > 0:
+                            row.append('Likely')
+                        else:
+                            row.append('Very Unlikely')
+                analysis.append(row)
+        print(
+            tabulate(analysis,
+                     headers=[
+                         'Filename', 'Organization', 'Personal', 'Financial',
+                         'Bank', 'Account', 'BSB', 'Credit Card', 'License',
+                         'Passport', 'Health', 'Phone/Email'
+                     ],
+                     tablefmt="mixed_grid"))
