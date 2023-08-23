@@ -125,57 +125,74 @@ tfn_keywords = [
 ]
 
 regexp_fixedline = [
-    r'^\(0[2378]\)\s\d{4}\s\d{4}$', r'^0[2378]\s\d{4}\s\d{4}$',
-    r'^\+61\s[2378]\s\d{4}\s\d{4}'
+    r'\b\(0[2378]\)\s\d{4}\s\d{4}\b', r'\b0[2378]\s\d{4}\s\d{4}\b',
+    r'\b\+61\s[2378]\s\d{4}\s\d{4}\b'
 ]
 
 regexp_mobile = [
-    r'^0[45]\d{2}\s\d{3}\s\d{3}$', r'^\+61\s[45]\d{2}\s\d{3}\s\d{3}$'
+    r'\b0[45]\d{2}\s\d{3}\s\d{3}\b', r'\b\+61\s[45]\d{2}\s\d{3}\s\d{3}\b'
 ]
 
 regexp_bsb = [
-    r'^\d{3}-\d{3}$',
-    r'^\d{3} \d{3}$',
-    r'^\d{4}-\d{5}$',
+    r'\b\d{3}-\d{3}\b',
+    r'\b\d{3} \d{3}\b',
+    r'\b\d{4}-\d{5}\b',
 ]
 
-regexp_account_no = [r'^\d{3}\s\d{3}\s\d{3}$', r'^\d{2}-\d{3}-\d{4}$']
+regexp_account_no = [r'\b\d{3}\s\d{3}\s\d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b']
 
 regexp_abn_acn = [
-    r'^\d{2}[-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{3}$', r'^\d{3}\s\d{3}\s\d{3}$'
+    r'\b\d{2}[-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{3}\b', r'\b\d{3}\s\d{3}\s\d{3}\b'
 ]
 
 regexp_license = [
-    r'^\d{9}$', r'^\d{4}[A-Za-z]{5}$', r'^[A-Za-z]{2}\d{7}$',
-    r'^[A-Za-z]{2}\d{2}[A-Za-z]{5}$'
+    r'\b\d{9}\b', r'\b\d{4}[A-Za-z]{5}\b', r'\b[A-Za-z]{2}\d{7}\b',
+    r'\b[A-Za-z]{2}\d{2}[A-Za-z]{5}\b'
 ]
 
 regexp_medicare = [
-    r'^[2-6]\d{9}\d?', r'^[2-6]\d{3}\s\d{5}\s\d\s\d?$',
-    r'^[2-6]\d{3}\s\d{5}\s\d\d?$'
+    r'\b[2-6]\d{9}\d?\b', r'\b[2-6]\d{3}\s\d{5}\s\d\s\d?\b',
+    r'\b[2-6]\d{3}\s\d{5}\s\d\d?\b'
 ]
 
-regexp_email = [r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$']
+regexp_email = [
+    r'\b([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})\b'
+]
 
-regexp_passport = [r'^[NEDFACUX]\d{7}$', r'^P[ABCDEFUWXZ]\d{7}$']
+regexp_passport = [r'\b[NEDFACUX]\d{7}\b', r'\bP[ABCDEFUWXZ]\d{7}\b']
 
-regexp_tfn = [r'^\d{3}\s?\d{3}\s?\d{2,3}$']
+regexp_tfn = [r'\b\d{3}\s?\d{3}\s?\d{2,3}\b']
 
 matcher_patterns = [{
-    'name':
-    'financial / banking information',
-    'regex': [regexp_bsb, regexp_account_no, cards.any_cards],
-    'keywords': [bank_names_keywords, finance_keywords, cards.keywords]
+    'name': 'australian bank names',
+    'regex': [],
+    'keywords': [bank_names_keywords]
 }, {
-    'name': 'identification information',
-    'regex': [regexp_license, regexp_passport],
-    'keywords': [drivers_license_keywords, passport_keywords]
+    'name': 'account number',
+    'regex': [regexp_account_no],
+    'keywords': [finance_keywords]
+}, {
+    'name': 'bsb number',
+    'regex': [regexp_bsb],
+    'keywords': [finance_keywords]
+}, {
+    'name': 'credit card number',
+    'regex': [cards.any_cards],
+    'keywords': [cards.keywords]
+}, {
+    'name': 'drivers license',
+    'regex': [regexp_license],
+    'keywords': [drivers_license_keywords]
+}, {
+    'name': 'passport',
+    'regex': [regexp_passport],
+    'keywords': [passport_keywords]
 }, {
     'name': 'medicare / health information',
     'regex': [regexp_medicare],
     'keywords': [medicare_keywords]
 }, {
-    'name': 'address / contact information',
+    'name': 'phone / email',
     'regex': [regexp_fixedline, regexp_mobile, regexp_email],
     'keywords': []
 }]

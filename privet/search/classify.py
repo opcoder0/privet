@@ -93,7 +93,7 @@ class Classify:
                     bn_pattern.append({"LEMMA": parts[0]})
                 elif len(parts) > 1:
                     for part in parts:
-                        bn_pattern.append({"LOWER": part})
+                        bn_pattern.append({"LOWER": part.lower()})
                 matcher_pattern.append(bn_pattern)
 
         matcher.add(name, matcher_pattern)
