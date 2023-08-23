@@ -15,14 +15,17 @@
 # limitations under the License.
 
 import argparse
-from pathlib import Path
+import json
 import os
+import sys
+import shutil
+
+from pathlib import Path
+
 from privet.search import libag
 from privet.search import native
 from privet.search import nlp
 from privet.search import classify
-import sys
-import shutil
 
 
 def native_search(path_args, extn):
@@ -37,11 +40,12 @@ def text_search(path_args, extn):
     t.search(file_paths, extn)
 
 
-def nlp_search(path_args, extn):
+def nlp_search(path_args, extn, context):
     pipeline = nlp.Nlp()
     classifier = classify.Classify(pipeline)
     file_paths = path_args.split(",")
-    classifier.search(file_paths, extn)
+    results = classifier.search(file_paths, extn, context)
+    print(json.dumps(results, sort_keys=True, indent=4))
 
 
 def copy_words_file():
@@ -73,33 +77,42 @@ if __name__ == '__main__':
         description=
         "Search for confidential data in files. Requires atleast one file type to run"
     )
-    parser.add_argument("-t",
-                        "--text",
-                        action='store_false',
-                        help="search text files")
-    parser.add_argument("-p",
-                        "--pdf",
-                        action='store_false',
-                        help="search PDF files")
-    parser.add_argument("-d",
-                        "--dir",
+    parser.add_argument('-t',
+                        '--text',
+                        action='store_true',
+                        help='search text files')
+    parser.add_argument('-p',
+                        '--pdf',
+                        action='store_true',
+                        help='search PDF files')
+    parser.add_argument('-d',
+                        '--dir',
                         type=str,
                         metavar='/path1,/path2,...',
                         action='store',
-                        help="search path to find files")
+                        help='search path to find files')
     parser.add_argument(
-        "-s",
-        "--searchtype",
+        '-s',
+        '--searchtype',
         type=str,
         action='store',
-        help="search technique; supported values one of: 'nlp' or 'filter'")
+        help='search technique; supported values one of: "nlp" or "filter"')
+
+    parser.add_argument(
+        '-n',
+        '--namespace',
+        type=str,
+        action='store',
+        help='search namespace can indicate region or search domain')
 
     args = parser.parse_args()
     if not args.dir:
+        print()
         print('Missing mandatory argument: directory path to search files\n')
         parser.print_help()
         exit(1)
     if not args.searchtype:
+        print()
         print(
             'Missing mandatory argument: method to use for searching files\n')
         parser.print_help()
@@ -107,20 +120,30 @@ if __name__ == '__main__':
 
     if args.searchtype.strip() != 'nlp' and args.searchtype.strip(
     ) != 'filter':
+        print()
         print('Invalid value for searchtype\n')
         parser.print_help()
         exit(1)
 
     if args.text is False and args.pdf is False:
+        print()
         print('Must specify atleast one file type to search\n')
+        parser.print_help()
+        exit(1)
+
+    if args.searchtype.strip() == 'nlp' and (args.namespace is None
+                                             or args.namespace.strip() == ''):
+        print()
+        print('Must specify search namespace. Supported values: [Australia]')
+        print()
         parser.print_help()
         exit(1)
 
     if args.searchtype.strip() == 'nlp':
         if args.text:
-            nlp_search(args.dir, 'txt')
+            nlp_search(args.dir, 'txt', args.namespace.strip())
         else:
-            nlp_search(args.dir, 'pdf')
+            nlp_search(args.dir, 'pdf', args.namespace.strip())
     elif args.searchtype.strip() == 'filter':
         if args.text:
             native_search(args.dir, 'txt')

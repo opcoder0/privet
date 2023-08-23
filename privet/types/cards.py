@@ -77,6 +77,11 @@ keywords = [
     'カードの名義人', 'カードの名義', 'デビット カード', 'デビットカード', '中国银联', '银联'
 ]
 
+any_cards = [
+    r'^\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}$', r'^\d{16}$', r'^\d{15}$',
+    r'^\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{3}$'
+]
+
 
 class CreditCard:
 
@@ -99,7 +104,7 @@ class CreditCard:
         amex_card = r'\b3[47][0-9]{13}\b'
         self.re_amex = re.compile(amex_card)
         # anything like a card number
-        self.any_cc_rex = r'(\b\d{4}\s+\d{4}\s+\d{4}\s+\d{4}\b)|(\b\d{16}\b)|(\b\d{15}\b)|(\b\d{4}\s+\d{4}\s+\d{4}\s+\d{3}\b)'
+        self.any_cc_rex = r'(\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b)|(\b\d{16}\b)|(\b\d{15}\b)|(\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{3}\b)'
         self.keywords = keywords
 
     def card_type(self, card_number):

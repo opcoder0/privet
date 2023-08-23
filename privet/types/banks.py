@@ -820,5 +820,5 @@ statement_keywords = [
     'bank charges', 'bank details', 'banking information', 'full names',
     'account balance', 'opening balance', 'balance', 'transaction',
     'transaction details', 'debit', 'credit', 'account number',
-    'account details', 'credit card number', 'card number'
+    'account details', 'credit card number', 'card number', 'bsb number', 'bsb'
 ]

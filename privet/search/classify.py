@@ -14,14 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
+import re
 
 from privet.search import pathfinder
 from privet.search import nlp
 from privet.filetype import pdf
 from privet.filetype import text
+from privet.types import australia
+from privet.types.matcher_base import MatcherBase
 
-from privet.types import banks
+from spacy.matcher import Matcher
 
 
 class Classify:
@@ -30,59 +32,87 @@ class Classify:
         self.pipeline = pipeline
         self.pathfinder = pathfinder.Pathfinder()
 
-    def search(self, file_paths, extn):
+    def search(self, file_paths, extn, context):
+        search_results = []
         filenames = self.pathfinder.findfiles(file_paths, extn, True)
+        mb = None
+        if context.lower() == 'australia':
+            mb = australia.Australia()
+
         for filename in filenames:
             if extn == 'pdf':
                 doc = pdf.Pdf(filename)
             else:
                 doc = text.Text(filename)
             _, pages = doc.as_text()
-            print('filename: {}'.format(filename))
-            self.classify_entity(pages)
-            self.classify_pattern(pages)
+            result = {}
+            entities, matcher_results = self.classify(pages, mb)
+            result[filename] = (entities, matcher_results)
+            search_results.append(result)
+        return search_results
 
-    def add_banking_pattern(self):
-        # bank names
-        matcher_pattern = dict()
-        for bank_name in banks.bank_names:
-            bn_pattern = list()
-            parts = bank_name.split(' ')
-            for part in parts:
-                bn_pattern.append({"TEXT": part})
-            bank_pattern = bank_name.replace(' ', '_')
-            matcher_pattern[bank_pattern] = [bn_pattern]
-        # keywords
-        for keyword in banks.statement_keywords:
-            bn_pattern = list()
-            parts = keyword.split(' ')
-            if len(parts) == 1:
-                bn_pattern.append({"LEMMA": parts[0]})
-            elif len(parts) > 1:
-                for part in parts:
-                    bn_pattern.append({"LOWER": part})
+    def classify(self, pages, mb: MatcherBase):
 
-            kw_pattern = keyword.replace(' ', '_')
-            matcher_pattern[kw_pattern] = [bn_pattern]
-
-        self.pipeline.add_matcher(matcher_pattern)
-
-    def classify_entity(self, texts):
-
-        entities = {}
-        for text in texts:
-            doc = self.pipeline.nlp(text)
-            for ent in doc.ents:
-                if ent.label_ in entities:
-                    entities[ent.label_] += 1
-                else:
-                    entities[ent.label_] = 1
-        print(json.dumps(entities, sort_keys=True, indent=4))
-
-    def classify_pattern(self, texts):
-        self.add_banking_pattern()
-        all_text = '\n'.join(texts)
+        all_text = ' '.join(pages)
+        # TODO remove newlines at the source
+        all_text = all_text.replace('\n', ' ')
         doc = self.pipeline.nlp(all_text)
-        matches = self.pipeline.matcher(doc)
-        print("Matches:",
-              [doc[start:end].text for match_id, start, end in matches])
+        entities = self.entities(doc)
+        matcher_patterns = mb.get_matchers()
+        matcher_results = []
+        for mp_dict in matcher_patterns:
+            n_kw = self.match(doc, mp_dict['name'], mp_dict['keywords'])
+            n_regex = self.patterns(doc, mp_dict['regex'])
+            v = {}
+            v[mp_dict['name']] = {'keywords': n_kw, 'regex': n_regex}
+            matcher_results.append(v)
+        return entities, matcher_results
+
+    def entities(self, doc):
+        entities = {}
+        for ent in doc.ents:
+            if ent.label_ in entities:
+                entities[ent.label_] += 1
+            else:
+                entities[ent.label_] = 1
+        return entities
+
+    def match(self, doc, name, list_of_kwlist):
+
+        if len(list_of_kwlist) == 0:
+            return 0
+
+        matcher_pattern = []
+        matcher = Matcher(self.pipeline.nlp.vocab)
+        # add the keywords
+        for kwlist in list_of_kwlist:
+            for kw in kwlist:
+                bn_pattern = list()
+                parts = kw.split(' ')
+                if len(parts) == 1:
+                    bn_pattern.append({"LEMMA": parts[0]})
+                elif len(parts) > 1:
+                    for part in parts:
+                        bn_pattern.append({"LOWER": part})
+                matcher_pattern.append(bn_pattern)
+
+        matcher.add(name, matcher_pattern)
+        matches = matcher(doc)
+        # print("Matches:",
+        #      [doc[start:end].text for match_id, start, end in matches])
+        return len(matches)
+
+    def patterns(self, doc, list_of_re_list):
+
+        if len(list_of_re_list) == 0:
+            return 0
+
+        n_patterns = 0
+        for re_list in list_of_re_list:
+            for regexp in re_list:
+                for match in re.finditer(regexp, doc.text):
+                    start, end = match.span()
+                    span = doc.char_span(start, end)
+                    if span is not None:
+                        n_patterns += 1
+        return n_patterns

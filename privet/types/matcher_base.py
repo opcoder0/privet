@@ -14,16 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import spacy
-from spacy import displacy
 
-
-# Use NLP to classify content that is not easily determinisitc
-# unless it is seen in context of its content.
-class Nlp:
+class MatcherBase:
 
     def __init__(self):
-        self.nlp = spacy.load('en_core_web_sm')
+        pass
 
-    def visualize_named_entity(self, doc):
-        displacy.serve(doc, style="ent")
+    def get_matchers(self):
+        return None
