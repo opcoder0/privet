@@ -141,7 +141,9 @@ regexp_bsb = [
     r'\b\d{4}-\d{5}\b',
 ]
 
-regexp_account_no = [r'\b\d{3}\s\d{3}\s\d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b']
+regexp_account_no = [
+    r'\b\d{3}\s\d{3}\s\d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b', r'\b\d{4}-\d{5}\b'
+]
 
 regexp_abn_acn = [
     r'\b\d{2}[-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{3}\b', r'\b\d{3}\s\d{3}\s\d{3}\b'
@@ -228,24 +230,24 @@ class Australia(MatcherBase):
                     row.append('Yes')
                 else:
                     row.append('No')
-                for search in searches:
-                    i = 0
+                # matcher_pattern search results
+                for i, search in enumerate(searches):
                     for k, v in search.items():
                         v_kw = v['keywords']
                         v_re = v['regex']
                         in_regex_len = len(matcher_patterns[i]['regex'])
-                        i += 1
-                        if v_kw > 0 and v_re > 0:
+                        if v_kw == 0 and v_re == 0:
+                            row.append('Unlikely')
+                        elif v_kw > 0 and v_re > 0:
                             row.append('Very Likely')
-                        elif v_kw > 0 and v_re == 0:
-                            if in_regex_len == 0:
-                                row.append('Very Likely')
-                            else:
-                                row.append('Unlikely')
+                        elif v_kw > 0 and v_re == 0 and in_regex_len == 0:
+                            row.append('Likely')
+                        elif v_kw > 0 and v_re == 0 and in_regex_len > 0:
+                            row.append('Unlikely')
                         elif v_kw == 0 and v_re > 0:
                             row.append('Likely')
                         else:
-                            row.append('Very Unlikely')
+                            row.append('Unspecified')
                 analysis.append(row)
         print(
             tabulate(analysis,
