@@ -44,7 +44,7 @@ def nlp_search(path_args, extn, context, verbose):
     pipeline = nlp.Nlp()
     classifier = classify.Classify(pipeline)
     file_paths = path_args.split(",")
-    results = classifier.search(file_paths, extn, context)
+    results = classifier.search(file_paths, extn, context, verbose)
     classifier.analyze(results, context)
     if verbose:
         print(json.dumps(results, sort_keys=True, indent=4))

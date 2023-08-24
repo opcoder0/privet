@@ -32,7 +32,7 @@ class Classify:
         self.pipeline = pipeline
         self.pathfinder = pathfinder.Pathfinder()
 
-    def search(self, file_paths, extn, context):
+    def search(self, file_paths, extn, context, verbose=False):
         search_results = []
         filenames = self.pathfinder.findfiles(file_paths, extn, True)
         mb = None
@@ -46,7 +46,7 @@ class Classify:
                 doc = text.Text(filename)
             _, pages = doc.as_text()
             result = {}
-            entities, matcher_results = self.classify(pages, mb)
+            entities, matcher_results = self.classify(pages, mb, verbose)
             result[filename] = (entities, matcher_results)
             search_results.append(result)
         return search_results
@@ -59,20 +59,32 @@ class Classify:
         if mb is not None:
             mb.analyze(search_results)
 
-    def classify(self, pages, mb: MatcherBase):
+    def classify(self, pages, mb: MatcherBase, verbose):
 
         all_text = ' '.join(pages)
         # TODO remove newlines at the source
         all_text = all_text.replace('\n', ' ')
         doc = self.pipeline.nlp(all_text)
+        # entity
         entities = self.entities(doc)
         matcher_patterns = mb.get_matchers()
         matcher_results = []
         for mp_dict in matcher_patterns:
-            n_kw = self.match(doc, mp_dict['name'], mp_dict['keywords'])
-            n_regex = self.patterns(doc, mp_dict['regex'])
+            # matcher
+            n_kw, keyword_matches = self.match(doc, mp_dict['name'],
+                                               mp_dict['keywords'])
+            # pattern
+            n_regex, pattern_matches = self.patterns(doc, mp_dict['regex'])
             v = {}
-            v[mp_dict['name']] = {'keywords': n_kw, 'regex': n_regex}
+            if verbose:
+                v[mp_dict['name']] = {
+                    'keywords': n_kw,
+                    'regex': n_regex,
+                    'keyword_matches': keyword_matches,
+                    'pattern_matches': pattern_matches,
+                }
+            else:
+                v[mp_dict['name']] = {'keywords': n_kw, 'regex': n_regex}
             matcher_results.append(v)
         return entities, matcher_results
 
@@ -88,7 +100,7 @@ class Classify:
     def match(self, doc, name, list_of_kwlist):
 
         if len(list_of_kwlist) == 0:
-            return 0
+            return 0, []
 
         matcher_pattern = []
         matcher = Matcher(self.pipeline.nlp.vocab)
@@ -106,15 +118,17 @@ class Classify:
 
         matcher.add(name, matcher_pattern)
         matches = matcher(doc)
-        # print("Matches:",
-        #      [doc[start:end].text for match_id, start, end in matches])
-        return len(matches)
+        keyword_matches = []
+        for match_id, start, end in matches:
+            keyword_matches.append(doc[start:end].text)
+        return len(matches), keyword_matches
 
     def patterns(self, doc, list_of_re_list):
 
         if len(list_of_re_list) == 0:
-            return 0
+            return 0, []
 
+        pattern_matches = []
         n_patterns = 0
         for re_list in list_of_re_list:
             for regexp in re_list:
@@ -123,4 +137,6 @@ class Classify:
                     span = doc.char_span(start, end)
                     if span is not None:
                         n_patterns += 1
-        return n_patterns
+                        pattern_matches.append(span.text)
+
+        return n_patterns, pattern_matches

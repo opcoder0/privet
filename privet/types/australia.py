@@ -107,9 +107,7 @@ drivers_license_keywords = [
 ]
 
 medicare_keywords = [
-    'bank account details', 'medicare payments', 'mortgage account',
-    'bank payments', 'information branch', 'credit card loan',
-    'department of human services', 'local service', 'medicare'
+    'medicare payments', 'department of human services', 'medicare', 'medibank'
 ]
 
 passport_keywords = [
@@ -127,12 +125,12 @@ tfn_keywords = [
 ]
 
 regexp_fixedline = [
-    r'\b\(0[2378]\)\s\d{4}\s\d{4}\b', r'\b0[2378]\s\d{4}\s\d{4}\b',
-    r'\b\+61\s[2378]\s\d{4}\s\d{4}\b'
+    r'\b\(0[2378]\) \d{4} \d{4}\b', r'\b0[2378] \d{4} \d{4}\b',
+    r'\b\+61 [2378] \d{4} \d{4}\b'
 ]
 
 regexp_mobile = [
-    r'\b0[45]\d{2}\s\d{3}\s\d{3}\b', r'\b\+61\s[45]\d{2}\s\d{3}\s\d{3}\b'
+    r'\b0[45]\d{2} \d{3} \d{3}\b', r'\b\+61 [45]\d{2} \d{3} \d{3}\b'
 ]
 
 regexp_bsb = [
@@ -142,11 +140,11 @@ regexp_bsb = [
 ]
 
 regexp_account_no = [
-    r'\b\d{3}\s\d{3}\s\d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b', r'\b\d{4}-\d{5}\b'
+    r'\b\d{3} \d{3} \d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b', r'\b\d{4}-\d{5}\b'
 ]
 
 regexp_abn_acn = [
-    r'\b\d{2}[-\s]?\d{3}[-\s]?\d{3}[-\s]?\d{3}\b', r'\b\d{3}\s\d{3}\s\d{3}\b'
+    r'\b\d{2}[- ]?\d{3}[- ]?\d{3}[- ]?\d{3}\b', r'\b\d{3} \d{3} \d{3}\b'
 ]
 
 regexp_license = [
@@ -155,8 +153,8 @@ regexp_license = [
 ]
 
 regexp_medicare = [
-    r'\b[2-6]\d{9}\d?\b', r'\b[2-6]\d{3}\s\d{5}\s\d\s\d?\b',
-    r'\b[2-6]\d{3}\s\d{5}\s\d\d?\b'
+    r'\b[2-6]\d{9}\d?\b', r'\b[2-6]\d{3} \d{5} \d \d?\b',
+    r'\b[2-6]\d{3} \d{5} \d\d?\b'
 ]
 
 regexp_email = [
@@ -165,7 +163,7 @@ regexp_email = [
 
 regexp_passport = [r'\b[NEDFACUX]\d{7}\b', r'\bP[ABCDEFUWXZ]\d{7}\b']
 
-regexp_tfn = [r'\b\d{3}\s?\d{3}\s?\d{2,3}\b']
+regexp_tfn = [r'\b\d{3} ?\d{3} ?\d{2,3}\b']
 
 matcher_patterns = [{
     'name': 'australian bank names',
