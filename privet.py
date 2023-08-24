@@ -22,7 +22,6 @@ import shutil
 
 from pathlib import Path
 
-from privet.search import libag
 from privet.search import native
 from privet.search import nlp
 from privet.search import classify
@@ -30,12 +29,6 @@ from privet.search import classify
 
 def native_search(path_args, extn):
     t = native.Native()
-    file_paths = path_args.split(",")
-    t.search(file_paths, extn)
-
-
-def text_search(path_args, extn):
-    t = libag.Text()
     file_paths = path_args.split(",")
     t.search(file_paths, extn)
 
