@@ -22,14 +22,6 @@ Types of information the tool recognizes -
 - AWS Access Key IDs and Secret Access Key
 - International Bank Names
 
-## Design
-
-Search is supported using two methods 
-
-- Filter (`-s filter`): The search looks through files and searches for patterns and keywords in a range of about 250 words.
-- NLP (`-s nlp`): The search looks through files using Spacy's NLP library. It relies on entities and matchers to display the likelyhood of a successful search result.
-
-
 ## Usage
 
 ```
