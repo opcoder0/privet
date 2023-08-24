@@ -22,6 +22,19 @@ Types of information the tool recognizes -
 - AWS Access Key IDs and Secret Access Key
 - International Bank Names
 
+## Installation
+
+I have tested it with Python 3.9. It works well if you have a version >= 3.9.
+
+1. Clone the repository `git clone git@github.com:opcoder0/privet.git`
+2. Change directory `cd privet`
+3. Create a virtual environment `python -m venv venv`
+4. Activate the virtual environment `source venv/bin/activate`
+5. Install dependencies `pip install -r requirements.txt`
+6. Download Spacy's trained model/pipeline. `python -m spacy download en_core_web_sm`
+6. Run `python privet.py --help`
+```
+
 ## Usage
 
 ```
