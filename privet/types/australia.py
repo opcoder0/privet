@@ -250,7 +250,7 @@ class Australia(MatcherBase):
         print(
             tabulate(analysis,
                      headers=[
-                         'Filename', 'Organization', 'Personal', 'Financial',
+                         'Filename', 'Organization', 'Persons', 'Financial',
                          'Bank', 'Account', 'BSB', 'Credit Card', 'License',
                          'Passport', 'Health', 'Phone/Email'
                      ],
