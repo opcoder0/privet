@@ -30,3 +30,7 @@ class Text:
 
     def as_text(self):
         return 1, [self.fp.read()]
+
+    def content(self):
+        _, result = self.as_text()
+        return result[0]

@@ -17,7 +17,6 @@
 import argparse
 import json
 import os
-import sys
 import shutil
 
 from pathlib import Path
@@ -25,6 +24,9 @@ from pathlib import Path
 from privet.search import native
 from privet.search import nlp
 from privet.search import classify
+
+from privet.filetype import text
+from privet.filetype import pdf
 
 
 def native_search(path_args, extn):
@@ -45,7 +47,6 @@ def nlp_search(path_args, extn, context, verbose):
 
 def copy_words_file():
     home_dir = Path.home()
-    privet_dir = os.path.join(home_dir, '.privet')
     mod_path = os.path.dirname(__file__)
     words_file = os.path.join(mod_path, 'words.txt')
     privet_words_file = os.path.join(home_dir, '.privet', 'words.txt')
@@ -63,6 +64,32 @@ def privet_init():
     else:
         os.mkdir(privet_dir)
         copy_words_file()
+
+
+def visualize_doc(filename):
+    p = Path(filename)
+    supported_extensions = ['.txt', '.pdf']
+    if p.is_file():
+        extn = p.suffix
+        if extn in supported_extensions:
+            content = None
+            if extn == '.txt':
+                txt_doc = text.Text(filename)
+                content = txt_doc.content()
+            if extn == '.pdf':
+                pdf_doc = pdf.Pdf(filename)
+                content = pdf_doc.content()
+            pipeline = nlp.Nlp()
+            doc = pipeline.nlp(content)
+            pipeline.visualize(doc)
+        else:
+            print('Unsupported file format. Must be one of',
+                  supported_extensions)
+            return
+    else:
+        print(filename, ' must be a file of one of these types ',
+              supported_extensions)
+        return
 
 
 if __name__ == '__main__':
@@ -104,48 +131,55 @@ if __name__ == '__main__':
                         '--verbose',
                         action='store_true',
                         help='verbose output')
+    parser.add_argument('-z',
+                        '--visualize',
+                        metavar='/path/to/file',
+                        action='store',
+                        help='Visualize document entites')
 
     args = parser.parse_args()
-    if not args.dir:
+    if not args.dir and not args.visualize:
         print()
         print('Missing mandatory argument: directory path to search files\n')
         parser.print_help()
         exit(1)
-    if not args.searchtype:
+    if not args.searchtype and not args.visualize:
         print()
         print(
             'Missing mandatory argument: method to use for searching files\n')
         parser.print_help()
         exit(1)
 
-    if args.searchtype.strip() != 'nlp' and args.searchtype.strip(
-    ) != 'filter':
+    if not args.visualize and args.searchtype.strip(
+    ) != 'nlp' and args.searchtype.strip() != 'filter':
         print()
         print('Invalid value for searchtype\n')
         parser.print_help()
         exit(1)
 
-    if args.text is False and args.pdf is False:
+    if not args.visualize and args.text is False and args.pdf is False:
         print()
         print('Must specify atleast one file type to search\n')
         parser.print_help()
         exit(1)
 
-    if args.searchtype.strip() == 'nlp' and (args.namespace is None
-                                             or args.namespace.strip() == ''):
+    if not args.visualize and args.searchtype.strip() == 'nlp' and (
+            args.namespace is None or args.namespace.strip() == ''):
         print()
         print('Must specify search namespace. Supported values: [Australia]')
         print()
         parser.print_help()
         exit(1)
 
-    if args.searchtype.strip() == 'nlp':
+    if not args.visualize and args.searchtype.strip() == 'nlp':
         if args.text:
             nlp_search(args.dir, 'txt', args.namespace.strip(), args.verbose)
         else:
             nlp_search(args.dir, 'pdf', args.namespace.strip(), args.verbose)
-    elif args.searchtype.strip() == 'filter':
+    elif not args.visualize and args.searchtype.strip() == 'filter':
         if args.text:
             native_search(args.dir, 'txt')
         else:
             native_search(args.dir, 'pdf')
+    elif args.visualize:
+        visualize_doc(args.visualize)

@@ -25,5 +25,5 @@ class Nlp:
     def __init__(self):
         self.nlp = spacy.load('en_core_web_sm')
 
-    def visualize_named_entity(self, doc):
+    def visualize(self, doc):
         displacy.serve(doc, style="ent")

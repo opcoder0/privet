@@ -16,9 +16,6 @@
 
 from PyPDF2 import PdfReader
 
-import mmap
-import re
-
 import privet
 
 
@@ -149,3 +146,10 @@ class Pdf:
             pages.append('\n'.join(lines))
 
         return npages, pages
+
+    def content(self):
+        n, pages = self.as_text()
+        result = ''
+        for page in pages:
+            result += page
+        return result
