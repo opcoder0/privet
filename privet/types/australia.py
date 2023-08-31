@@ -17,12 +17,14 @@
 # list of all bank names by alphabetical order
 # source https://en.wikipedia.org/wiki/List_of_banks_in_Australia
 
-import pathlib
-from privet.types import cards
-from privet.types.matcher_base import MatcherBase
-from tabulate import tabulate
+import json
 
-bank_names_keywords = [
+from spacy.lang.en import English
+from spacy.matcher import PhraseMatcher
+
+from privet.types.matcher_base import MatcherBase
+
+bank_names = [
     'Alex Bank', 'AMP Bank', 'Australia & New Zealand Banking Group (ANZ)',
     'Australia and New Zealand Banking Group', 'Australian Military Bank',
     'Australian Mutual Bank', 'Australian Settlements Limited (ASL)',
@@ -124,134 +126,98 @@ tfn_keywords = [
     'individual tax return', 'tax file number', 'tfn'
 ]
 
-regexp_fixedline = [
-    r'\b\(0[2378]\) \d{4} \d{4}\b', r'\b0[2378] \d{4} \d{4}\b',
-    r'\b\+61 [2378] \d{4} \d{4}\b'
-]
-
-regexp_mobile = [
-    r'\b0[45]\d{2} \d{3} \d{3}\b', r'\b\+61 [45]\d{2} \d{3} \d{3}\b'
-]
-
-regexp_bsb = [
-    r'\b\d{3}-\d{3}\b',
-    r'\b\d{3} \d{3}\b',
-    r'\b\d{4}-\d{5}\b',
-]
-
-regexp_account_no = [
-    r'\b\d{3} \d{3} \d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b', r'\b\d{4}-\d{5}\b'
-]
-
-regexp_abn_acn = [
-    r'\b\d{2}[- ]?\d{3}[- ]?\d{3}[- ]?\d{3}\b', r'\b\d{3} \d{3} \d{3}\b'
-]
-
-regexp_license = [
-    r'\b\d{9}\b', r'\b\d{4}[A-Za-z]{5}\b', r'\b[A-Za-z]{2}\d{7}\b',
-    r'\b[A-Za-z]{2}\d{2}[A-Za-z]{5}\b'
-]
-
-regexp_medicare = [
-    r'\b[2-6]\d{9}\d?\b', r'\b[2-6]\d{3} \d{5} \d \d?\b',
-    r'\b[2-6]\d{3} \d{5} \d\d?\b'
-]
+# regexp_fixedline = [
+#     r'\b\(0[2378]\) \d{4} \d{4}\b', r'\b0[2378] \d{4} \d{4}\b',
+#     r'\b\+61 [2378] \d{4} \d{4}\b'
+# ]
+# regexp_mobile = [
+#     r'\b0[45]\d{2} \d{3} \d{3}\b', r'\b\+61 [45]\d{2} \d{3} \d{3}\b'
+# ]
+# regexp_bsb = [r'\b\d{3}-\d{3}\b', r'\b\d{3} \d{3}\b']
+# regexp_account_no = [
+#     r'\b\d{3} \d{3} \d{3}\b', r'\b\d{2}-\d{3}-\d{4}\b', r'\b\d{4}-\d{5}\b'
+# ]
+# regexp_abn_acn = [
+#     r'\b\d{2}[- ]?\d{3}[- ]?\d{3}[- ]?\d{3}\b', r'\b\d{3} \d{3} \d{3}\b'
+# ]
+# regexp_license = [
+#     r'\b\d{9}\b', r'\b\d{4}[A-Za-z]{5}\b', r'\b[A-Za-z]{2}\d{7}\b',
+#     r'\b[A-Za-z]{2}\d{2}[A-Za-z]{5}\b'
+# ]
+# regexp_medicare = [
+#     r'\b[2-6]\d{9}\d?\b', r'\b[2-6]\d{3} \d{5} \d \d?\b',
+#     r'\b[2-6]\d{3} \d{5} \d\d?\b'
+# ]
+# regexp_passport = [r'\b[NEDFACUX]\d{7}\b', r'\bP[ABCDEFUWXZ]\d{7}\b']
+# regexp_tfn = [r'\b\d{3} ?\d{3} ?\d{2,3}\b']
 
 regexp_email = [
     r'\b([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})\b'
 ]
 
-regexp_passport = [r'\b[NEDFACUX]\d{7}\b', r'\bP[ABCDEFUWXZ]\d{7}\b']
-
-regexp_tfn = [r'\b\d{3} ?\d{3} ?\d{2,3}\b']
-
-matcher_patterns = [{
-    'name': 'australian bank names',
-    'regex': [],
-    'keywords': [bank_names_keywords]
-}, {
-    'name': 'account number',
-    'regex': [regexp_account_no],
-    'keywords': [finance_keywords]
-}, {
-    'name': 'bsb number',
-    'regex': [regexp_bsb],
-    'keywords': [finance_keywords]
-}, {
-    'name': 'credit card number',
-    'regex': [cards.any_cards],
-    'keywords': [cards.keywords]
-}, {
-    'name': 'drivers license',
-    'regex': [regexp_license],
-    'keywords': [drivers_license_keywords]
-}, {
-    'name': 'passport',
-    'regex': [regexp_passport],
-    'keywords': [passport_keywords]
-}, {
-    'name': 'medicare / health information',
-    'regex': [regexp_medicare],
-    'keywords': [medicare_keywords]
-}, {
-    'name': 'phone / email',
-    'regex': [regexp_fixedline, regexp_mobile, regexp_email],
-    'keywords': []
-}]
-
 
 class Australia(MatcherBase):
+    '''
+    Australia implements MatcherBase and contains keywords, patterns,
+    matchers, entities that are relevant in Australia.
+    '''
 
     def __init__(self):
-        self.patterns = matcher_patterns
+        self.matcher = None
+        self.ruler = None
+        self.setup_complete = False
 
-    def get_matchers(self):
-        return self.patterns
+    def re_list(self):
+        '''
+        re_list returns the list of regular expression patterns
+        that needs to be matched against the document.
+        '''
+        return regexp_email
+
+    def setup_patterns(self, nlp: English):
+        '''
+        setup_patterns sets up the necessary keywords and patterns
+        relevant to this domain
+        '''
+        if self.setup_complete is True:
+            return
+
+        keywords = {
+            'Finance': finance_keywords,
+            'DriversLicense': drivers_license_keywords,
+            'Medicare': medicare_keywords,
+            'Passport': passport_keywords,
+            'TFN': tfn_keywords,
+        }
+        self.matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
+        for name, kws in keywords.items():
+            patterns = [nlp.make_doc(kw) for kw in kws]
+            self.matcher.add(name, patterns)
+
+        self.ruler = nlp.add_pipe('entity_ruler', before='ner')
+        self.ruler.from_disk('privet/types/patterns.jsonl')
+        self.setup_complete = True
+
+        patterns = []
+        for bank in bank_names:
+            pattern = {'label': 'BANK', 'pattern': bank}
+            patterns.append(pattern)
+        self.ruler.add_patterns(patterns)
+
+    def search_keywords(self, nlp: English, doc):
+        keywords = {}
+        matches = self.matcher(doc)
+        for match_id, start, end in matches:
+            span = doc[start:end]
+            keyword_str = nlp.vocab.strings[match_id]
+            if keyword_str in keywords:
+                keywords[keyword_str].add(span.text)
+            else:
+                keywords[keyword_str] = set()
+                keywords[keyword_str].add(span.text)
+        for match_id_str, keyword_set in keywords.items():
+            keywords[match_id_str] = list(keyword_set)
+        return keywords
 
     def analyze(self, search_results):
-        analysis = []
-        for result in search_results:
-            row = []
-            for filename, result_list in result.items():
-                row.append(pathlib.Path(filename).name)
-                entity = result_list[0]
-                searches = result_list[1]
-                if entity.get('ORG') is not None:
-                    row.append('Yes')
-                else:
-                    row.append('No')
-                if entity.get('PERSON') is not None:
-                    row.append('Yes')
-                else:
-                    row.append('No')
-                if entity.get('MONEY') is not None:
-                    row.append('Yes')
-                else:
-                    row.append('No')
-                # matcher_pattern search results
-                for i, search in enumerate(searches):
-                    for k, v in search.items():
-                        v_kw = v['keywords']
-                        v_re = v['regex']
-                        in_regex_len = len(matcher_patterns[i]['regex'])
-                        if v_kw == 0 and v_re == 0:
-                            row.append('Unlikely')
-                        elif v_kw > 0 and v_re > 0:
-                            row.append('Very Likely')
-                        elif v_kw > 0 and v_re == 0 and in_regex_len == 0:
-                            row.append('Likely')
-                        elif v_kw > 0 and v_re == 0 and in_regex_len > 0:
-                            row.append('Unlikely')
-                        elif v_kw == 0 and v_re > 0:
-                            row.append('Likely')
-                        else:
-                            row.append('Unspecified')
-                analysis.append(row)
-        print(
-            tabulate(analysis,
-                     headers=[
-                         'Filename', 'Organization', 'Persons', 'Financial',
-                         'Bank', 'Account', 'BSB', 'Credit Card', 'License',
-                         'Passport', 'Health', 'Phone/Email'
-                     ],
-                     tablefmt="mixed_grid"))
+        print(json.dumps(search_results), indent=4, sort_keys=True)

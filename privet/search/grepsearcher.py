@@ -15,22 +15,25 @@
 # limitations under the License.
 
 import json
-import sys
 from privet.search import pathfinder
-from privet.search import scout
+from privet.search import grepper
 from privet.types import cards
 from privet.types import iban
 from privet.types import passport
 
 
-class Native:
+class GrepSearcher:
+    '''
+    GrepSearcher looks for credit card, IBAN, Passport numbers
+    in files using regular expression search.
+    '''
 
     def __init__(self):
         self.cc = cards.CreditCard()
         self.iban = iban.Iban()
         self.passport = passport.Passport()
         self.pathfinder = pathfinder.Pathfinder()
-        self.scout = scout.Scout()
+        self.grepper = grepper.Grepper()
 
     def print_results(self, r_type, n_results, results):
         if n_results == 0:
@@ -58,15 +61,15 @@ class Native:
         for q_type, q_options in query.items():
             for filename in filenames:
                 if extn == 'txt':
-                    n_results, results = self.scout.txt_file(q_options[0],
-                                                             filename,
-                                                             q_options[1],
-                                                             window_size=250)
+                    n_results, results = self.grepper.txt_file(q_options[0],
+                                                               filename,
+                                                               q_options[1],
+                                                               window_size=250)
                 elif extn == 'pdf':
-                    n_results, results = self.scout.pdf_file(q_options[0],
-                                                             filename,
-                                                             q_options[1],
-                                                             window_size=250)
+                    n_results, results = self.grepper.pdf_file(q_options[0],
+                                                               filename,
+                                                               q_options[1],
+                                                               window_size=250)
                 else:
                     raise Exception("Unsupported file extension")
                 self.print_results(q_type, n_results, results)

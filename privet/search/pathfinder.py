@@ -14,17 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pathlib
 import glob
 import logging
+
 import magic
-import pathlib
 
 
 class Pathfinder:
+    '''
+    Pathfinder returns a list of filenames under a list of
+    path names.
+    '''
 
     # return a list of filenames under the given pathnames
     # for the given extension
     def findfiles(self, filepaths, file_extension, recurse):
+        '''
+        findfiles returns list of files under filepaths with extension (in
+        file_extension). The function finds files at top level or recursively
+        based on recurse argument.
+        '''
 
         result = []
         for filepath in filepaths:
@@ -33,7 +43,7 @@ class Pathfinder:
                 search_path = search_path.joinpath('**')
             else:
                 search_path = search_path.joinpath('*')
-            extn = '*.{ext}'.format(ext=file_extension)
+            extn = f'*.{file_extension}'
             search_path = search_path.joinpath(extn)
             mime_idx = 0
             mime_ext = ''

@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 from privet.search.linux_x64 import libag
 from privet.types import cards
 from privet.types import iban

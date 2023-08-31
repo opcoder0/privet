@@ -1,0 +1,51 @@
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "("}, {"ORTH": "02"}, {"ORTH": ")"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "("}, {"ORTH": "03"}, {"ORTH": ")"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "("}, {"ORTH": "07"}, {"ORTH": ")"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "("}, {"ORTH": "08"}, {"ORTH": ")"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "02"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "03"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "07"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "08"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "2"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "3"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "7"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "8"}, {"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "04"}, {"SHAPE": "dd"}, {"SHAPE": "ddd"}, {"SHAPE": "ddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "05"}, {"SHAPE": "dd"}, {"SHAPE": "ddd"}, {"SHAPE": "ddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "4"}, {"SHAPE": "dd"}, {"SHAPE": "ddd"}, {"SHAPE": "ddd"}]}
+{"label": "PHONE_NUMBER", "pattern": [{"ORTH": "+"}, {"ORTH": "61"}, {"ORTH": "5"}, {"SHAPE": "dd"}, {"SHAPE": "ddd"}, {"SHAPE": "ddd"}]}
+{"label": "BSB_NUMBER", "pattern": [{"SHAPE": "ddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddd"}]}
+{"label": "ACCOUNT_NUMBER", "pattern": [{"SHAPE": "ddd"}, {"SHAPE": "ddd"}, {"SHAPE": "ddd"}]}
+{"label": "ACCOUNT_NUMBER", "pattern": [{"SHAPE": "dd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "dddd"}]}
+{"label": "ACCOUNT_NUMBER", "pattern": [{"SHAPE": "dddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddddd"}]}
+{"label": "ABN", "pattern": [{"SHAPE": "dd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddd"}, {"ORTH": "-", "OP": "?"}, {"SHAPE": "ddd"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "2"}, {"SHAPE": "ddd"}, {"SHAPE": "ddddd"}, {"SHAPE": "d"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "3"}, {"SHAPE": "ddd"}, {"SHAPE": "ddddd"}, {"SHAPE": "d"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "4"}, {"SHAPE": "ddd"}, {"SHAPE": "ddddd"}, {"SHAPE": "d"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "5"}, {"SHAPE": "ddd"}, {"SHAPE": "ddddd"}, {"SHAPE": "d"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "6"}, {"SHAPE": "ddd"}, {"SHAPE": "ddddd"}, {"SHAPE": "d"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "2"}, {"SHAPE": "ddddddddd"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "3"}, {"SHAPE": "ddddddddd"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "4"}, {"SHAPE": "ddddddddd"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "5"}, {"SHAPE": "ddddddddd"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "MEDICARE_NUMBER", "pattern": [{"ORTH": "6"}, {"SHAPE": "ddddddddd"}, {"SHAPE": "d", "OP": "?"}]}
+{"label": "DRIVERS_LICENSE", "pattern": [{"SHAPE": "dddd"}, {"SHAPE": "X"}, {"SHAPE": "ddddd"}]}
+{"label": "DRIVERS_LICENSE", "pattern": [{"SHAPE": "X"}, {"SHAPE": "dd"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "N"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "E"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "D"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "F"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "A"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "C"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "U"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "X"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "A"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "B"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "C"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "D"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "E"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "F"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "U"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "W"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "X"}, {"SHAPE": "ddddddd"}]}
+{"label": "PASSPORT_NUMBER", "pattern": [{"ORTH": "P"}, {"ORTH": "Z"}, {"SHAPE": "ddddddd"}]}

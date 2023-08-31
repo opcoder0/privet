@@ -14,16 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyPDF2 import PdfReader
-
 import mmap
 import re
 
-import privet
 from privet.filetype import pdf
 
 
-class Scout:
+class Grepper:
+    '''
+    Grepper performs string and regular expression search
+    in supported file formats.
+    '''
 
     def num_words(self, lines):
         nwords = 0
@@ -32,10 +33,15 @@ class Scout:
         return nwords
 
     def txt_file(self, regexp, filename, keywords=None, window_size=0):
+        '''
+        txt_file performs regular expression (regexp) and keyword search
+        in the text file (filename). The window size (in words) controls the
+        search area of keywords around the position regular expression
+        matched.
+        '''
 
         nresults = 0
         results = []
-        curr_pos = 0
         nwords = 0
         look_around = False
         save_prev = 0
@@ -95,7 +101,12 @@ class Scout:
         return nresults, results
 
     def pdf_file(self, regexp, filename, keywords=None, window_size=0):
-
+        '''
+        pdf_file performs regular expression (regexp) and keyword search
+        in the text file (filename). The window size (in words) controls the
+        search area of keywords around the position regular expression
+        matched.
+        '''
         nresults = 0
         results = []
         nwords = 0
@@ -111,7 +122,6 @@ class Scout:
         npages, pages = pdf_doc.as_text()
         for i in range(npages):
             lines = pages[i].split('\n')
-            done = False
             line_count = 0
             for line in lines:
                 line_count += 1
@@ -131,10 +141,11 @@ class Scout:
                             if i > 1:
                                 j = i - 1
                                 while j > 0 or nwords_till_now >= window_size:
-                                    prev_page = reader.pages[j]
+                                    prev_page = pages[j]
                                     prev_text = prev_page.extract_text()
                                     prev_lines = prev_text.split('\n')
-                                    prev_lines = self.cleanup_words(prev_lines)
+                                    prev_lines = pdf_doc.cleanup_words(
+                                        prev_lines)
                                     nwords_till_now += self.num_words(
                                         prev_lines)
                                     lines = prev_lines + lines

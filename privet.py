@@ -18,31 +18,26 @@ import argparse
 import json
 import os
 import shutil
+import sys
 
 from pathlib import Path
 
-from privet.search import native
-from privet.search import nlp
-from privet.search import classify
+from privet.search import grepsearcher
+from privet.search import nlpsearcher
 
 from privet.filetype import text
 from privet.filetype import pdf
 
 
-def native_search(path_args, extn):
-    t = native.Native()
-    file_paths = path_args.split(",")
-    t.search(file_paths, extn)
+def grep_search(path_args, extn):
+    grep_searcher = grepsearcher.GrepSearcher()
+    grep_searcher.search(path_args.split(","), extn)
 
 
 def nlp_search(path_args, extn, context, verbose):
-    pipeline = nlp.Nlp()
-    classifier = classify.Classify(pipeline)
-    file_paths = path_args.split(",")
-    results = classifier.search(file_paths, extn, context, verbose)
-    classifier.analyze(results, context)
-    if verbose:
-        print(json.dumps(results, sort_keys=True, indent=4))
+    nlp_searcher = nlpsearcher.NLPSearcher()
+    results = nlp_searcher.search(path_args.split(","), extn, context, verbose)
+    print(json.dumps(results, indent=4, sort_keys=True))
 
 
 def copy_words_file():
@@ -79,9 +74,8 @@ def visualize_doc(filename):
             if extn == '.pdf':
                 pdf_doc = pdf.Pdf(filename)
                 content = pdf_doc.content()
-            pipeline = nlp.Nlp()
-            doc = pipeline.nlp(content)
-            pipeline.visualize(doc)
+            nlp_searcher = nlpsearcher.NLPSearcher()
+            nlp_searcher.visualize(content)
         else:
             print('Unsupported file format. Must be one of',
                   supported_extensions)
@@ -96,9 +90,7 @@ if __name__ == '__main__':
 
     privet_init()
     parser = argparse.ArgumentParser(
-        description=
-        "Search for confidential data in files. Requires atleast one file type to run"
-    )
+        description="Search for confidential data in files")
     parser.add_argument('-t',
                         '--text',
                         action='store_true',
@@ -142,26 +134,26 @@ if __name__ == '__main__':
         print()
         print('Missing mandatory argument: directory path to search files\n')
         parser.print_help()
-        exit(1)
+        sys.exit(1)
     if not args.searchtype and not args.visualize:
         print()
         print(
             'Missing mandatory argument: method to use for searching files\n')
         parser.print_help()
-        exit(1)
+        sys.exit(1)
 
     if not args.visualize and args.searchtype.strip(
     ) != 'nlp' and args.searchtype.strip() != 'filter':
         print()
         print('Invalid value for searchtype\n')
         parser.print_help()
-        exit(1)
+        sys.exit(1)
 
     if not args.visualize and args.text is False and args.pdf is False:
         print()
         print('Must specify atleast one file type to search\n')
         parser.print_help()
-        exit(1)
+        sys.exit(1)
 
     if not args.visualize and args.searchtype.strip() == 'nlp' and (
             args.namespace is None or args.namespace.strip() == ''):
@@ -169,7 +161,7 @@ if __name__ == '__main__':
         print('Must specify search namespace. Supported values: [Australia]')
         print()
         parser.print_help()
-        exit(1)
+        sys.exit(1)
 
     if not args.visualize and args.searchtype.strip() == 'nlp':
         if args.text:
@@ -178,8 +170,8 @@ if __name__ == '__main__':
             nlp_search(args.dir, 'pdf', args.namespace.strip(), args.verbose)
     elif not args.visualize and args.searchtype.strip() == 'filter':
         if args.text:
-            native_search(args.dir, 'txt')
+            grep_search(args.dir, 'txt')
         else:
-            native_search(args.dir, 'pdf')
+            grep_search(args.dir, 'pdf')
     elif args.visualize:
         visualize_doc(args.visualize)
