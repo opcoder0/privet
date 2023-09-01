@@ -61,10 +61,10 @@ class NLPSearcher:
                 doc = pdf.Pdf(filename)
             else:
                 doc = text.Text(filename)
-            _, pages = doc.as_text()
+            doc_text = doc.as_text()
             result = {}
             ent_by_type, kw_by_type, matches = self._search(
-                pages, matcher_base, verbose)
+                doc_text, matcher_base, verbose)
             result[filename] = (ent_by_type, kw_by_type, matches)
             search_results.append(result)
         return search_results
@@ -77,11 +77,9 @@ class NLPSearcher:
         if matcher_base is not None:
             matcher_base.analyze(search_results)
 
-    def _search(self, pages, matcher_base: MatcherBase, verbose):
-        all_text = ' '.join(pages)
-        all_text = all_text.replace('\n', ' ')
+    def _search(self, doc_text, matcher_base: MatcherBase, verbose):
         matcher_base.setup_patterns(self.nlp)
-        doc = self.nlp(all_text)
+        doc = self.nlp(doc_text)
         # self.pipeline.visualize(doc)
         entities = self.entities(doc)
         keywords_by_type = matcher_base.search_keywords(self.nlp, doc)

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyPDF2 import PdfReader
+import slate3k
 
 import privet
 
@@ -23,10 +23,12 @@ class Pdf:
 
     def __init__(self, filename):
         self.filename = filename
+        self.doc = None
         try:
-            self.reader = PdfReader(filename)
-        except OSError as e:
-            print(e)
+            with open(filename, 'rb') as pdf_fp:
+                self.doc = slate3k.PDF(pdf_fp)
+        except OSError as os_err:
+            print(os_err)
             raise
 
     # PDF to text conviersion is a pain as there can be unexpected spaces
@@ -130,26 +132,9 @@ class Pdf:
         return nwords
 
     def as_text(self):
-
-        pages = []
-        npages = len(self.reader.pages)
-        for i in range(npages):
-            page = self.reader.pages[i]
-            text = page.extract_text()
-            lines = text.split('\n')
-            # Due to the generator and other factors extracting
-            # text from PDF is hard and has un-necessary spaces
-            # or missing spaces. The clean-up code below uses
-            # english_words to make words from the dictionary.
-            # NOTE may cause performance issues.
-            lines = self.cleanup_words(lines)
-            pages.append('\n'.join(lines))
-
-        return npages, pages
+        if self.doc is None:
+            return ''
+        return self.doc.text()
 
     def content(self):
-        n, pages = self.as_text()
-        result = ''
-        for page in pages:
-            result += page
-        return result
+        return self.as_text()

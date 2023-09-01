@@ -19,18 +19,22 @@ class Text:
 
     def __init__(self, filename):
         self.filename = filename
+        self.txt_fp = None
         try:
-            self.fp = open(filename, 'r')
-        except OSError as e:
-            print(e)
+            with open(filename, 'r', encoding='utf-8') as txt_fp:
+                self.txt_fp = txt_fp
+        except OSError as os_err:
+            print(os_err)
             raise
 
     def __del__(self):
-        self.fp.close()
+        if self.txt_fp is not None:
+            self.txt_fp.close()
 
     def as_text(self):
-        return 1, [self.fp.read()]
+        if self.txt_fp is not None:
+            return self.txt_fp.read()
+        return ''
 
     def content(self):
-        _, result = self.as_text()
-        return result[0]
+        return self.as_text()
