@@ -27,6 +27,17 @@ from privet.types import australia
 from privet.types.matcher_base import MatcherBase
 
 
+class InvalidContextException(Exception):
+    '''
+    Exception raised for errors related to
+    invalid context values.
+    '''
+
+    def __init__(self, message='Unsupported context value'):
+        self.message = message
+        super().__init__(self.message)
+
+
 class NLPSearcher:
     '''
     NLPSearcher searches documents combines the power of statistical
@@ -34,9 +45,16 @@ class NLPSearcher:
     and pattern matches.
     '''
 
-    def __init__(self):
+    def __init__(self, context):
         self.nlp = spacy.load('en_core_web_sm')
         self.pathfinder = pathfinder.Pathfinder()
+        self.context = None
+        self.matcher_base = None
+        if context.lower() == 'australia':
+            self.matcher_base = australia.Australia()
+            self.context = context
+        else:
+            raise InvalidContextException()
 
     def visualize(self, doc, style="ent"):
         if isinstance(doc, Doc):
@@ -47,15 +65,9 @@ class NLPSearcher:
         else:
             print('Invalid doc format')
 
-    def search(self, file_paths, extn, context, verbose=False):
-        '''
-        search performs context specific search
-        '''
+    def search(self, file_paths, extn, verbose=False):
         search_results = []
         filenames = self.pathfinder.findfiles(file_paths, extn, True)
-        matcher_base = None
-        if context.lower() == 'australia':
-            matcher_base = australia.Australia()
         for filename in filenames:
             if extn == 'pdf':
                 doc = pdf.Pdf(filename)
@@ -64,18 +76,14 @@ class NLPSearcher:
             doc_text = doc.as_text()
             result = {}
             ent_by_type, kw_by_type, matches = self._search(
-                doc_text, matcher_base, verbose)
+                doc_text, self.matcher_base, verbose)
             result[filename] = (ent_by_type, kw_by_type, matches)
             search_results.append(result)
         return search_results
 
-    def analyze(self, search_results, context):
-        matcher_base = None
-        if context == 'Australia':
-            matcher_base = australia.Australia()
-
-        if matcher_base is not None:
-            matcher_base.analyze(search_results)
+    def analyze(self, search_results):
+        if self.matcher_base is not None:
+            self.matcher_base.analyze(search_results)
 
     def _search(self, doc_text, matcher_base: MatcherBase, verbose):
         matcher_base.setup_patterns(self.nlp)

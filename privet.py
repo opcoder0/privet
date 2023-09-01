@@ -29,9 +29,10 @@ from privet.filetype import pdf
 
 
 def nlp_search(path_args, extn, context, verbose):
-    nlp_searcher = nlpsearcher.NLPSearcher()
-    results = nlp_searcher.search(path_args.split(","), extn, context, verbose)
-    print(json.dumps(results, indent=4, sort_keys=True))
+    nlp_searcher = nlpsearcher.NLPSearcher(context)
+    results = nlp_searcher.search(path_args.split(","), extn, verbose)
+    if verbose:
+        print(json.dumps(results, indent=4, sort_keys=True))
 
 
 def copy_words_file():
@@ -56,10 +57,15 @@ def privet_init():
 
 
 def visualize_doc(filename):
-    p = Path(filename)
+    '''
+    A test method / devtool to examine visualizations of
+    trained models, pattern matches and keyword matches.
+    '''
+    filename_p = Path(filename)
     supported_extensions = ['.txt', '.pdf']
-    if p.is_file():
-        extn = p.suffix
+    default_context = 'Australia'
+    if filename_p.is_file():
+        extn = filename_p.suffix
         if extn in supported_extensions:
             content = None
             if extn == '.txt':
@@ -68,7 +74,7 @@ def visualize_doc(filename):
             if extn == '.pdf':
                 pdf_doc = pdf.Pdf(filename)
                 content = pdf_doc.content()
-            nlp_searcher = nlpsearcher.NLPSearcher()
+            nlp_searcher = nlpsearcher.NLPSearcher(default_context)
             nlp_searcher.visualize(content)
         else:
             print('Unsupported file format. Must be one of',
@@ -117,13 +123,27 @@ if __name__ == '__main__':
         visualize_doc(args.visualize)
     elif args.dir and args.format and args.namespace:
         if args.format not in ['txt', 'pdf']:
-            print()
             print(
                 'Invalid file format. Allowed values must be one of [txt, pdf]'
             )
+            print()
             parser.print_help()
             sys.exit(1)
-        nlp_search(args.dir, args.format, args.namespace, args.verbose)
+        if args.namespace.lower() not in ['australia']:
+            print(
+                'Invalid namespace value. Allowed values must be one of [Australia]'
+            )
+            print()
+            parser.print_help()
+            sys.exit(1)
+        try:
+            nlp_search(args.dir, args.format, args.namespace, args.verbose)
+        except nlpsearcher.InvalidContextException:
+            print('Unsupported context value')
+            print()
+            parser.print_help()
+            sys.exit(1)
+
     else:
         print()
         print('Missing mandatory argument: directory path to search files\n')
