@@ -37,19 +37,19 @@ I have tested it with Python 3.9. It works well if you have a version >= 3.9.
 ## Usage
 
 ```
-usage: privet.py [-h] [-t] [-p] [-d /path1,/path2,...] [-s SEARCHTYPE] [-n NAMESPACE] [-v]
+usage: privet.py [-h] [-f FORMAT] [-d /path1,/path2,...] [-n NAMESPACE] [-v] [-z /path/to/file]
 
-Search for confidential data in files. Requires atleast one file type to run
+Search for confidential data in files
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t, --text            search text files
-  -p, --pdf             search PDF files
+  -f FORMAT, --format FORMAT
+                        Specify file format [txt, pdf]
   -d /path1,/path2,..., --dir /path1,/path2,...
                         search path to find files
-  -s SEARCHTYPE, --searchtype SEARCHTYPE
-                        search technique; supported values one of: "nlp" or "filter"
   -n NAMESPACE, --namespace NAMESPACE
                         search namespace can indicate region or search domain
   -v, --verbose         verbose output
+  -z /path/to/file, --visualize /path/to/file
+                        Visualize document entites
 ```
