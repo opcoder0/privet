@@ -1,5 +1,7 @@
 ## Privet
 
+![Privet](https://github.com/opcoder0/privet/blob/main/images/privet.jpeg)
+
 `privet` is a tool to find sensitve information in a file. The tool vets and lists files with confidential information. The tool looks for any personal identifiable information (PII), credit card numbers, government id numbers and so on. The tool supports two formats -
 
 - Text
