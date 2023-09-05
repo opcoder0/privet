@@ -19,10 +19,8 @@ class Text:
 
     def __init__(self, filename):
         self.filename = filename
-        self.txt_fp = None
         try:
-            with open(filename, 'r', encoding='utf-8') as txt_fp:
-                self.txt_fp = txt_fp
+            self.txt_fp = open(filename, 'r', encoding='utf-8')
         except OSError as os_err:
             print(os_err)
             raise

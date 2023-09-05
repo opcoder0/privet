@@ -31,8 +31,10 @@ from privet.filetype import pdf
 def nlp_search(path_args, extn, context, verbose):
     nlp_searcher = nlpsearcher.NLPSearcher(context)
     results = nlp_searcher.search(path_args.split(","), extn, verbose)
-    if verbose:
+    if verbose >= 1:
         print(json.dumps(results, indent=4, sort_keys=True))
+    else:
+        nlp_searcher.analyze(results)
 
 
 def copy_words_file():
@@ -43,52 +45,19 @@ def copy_words_file():
     shutil.copyfile(words_file, privet_words_file)
 
 
-def privet_init():
-    home_dir = Path.home()
-    privet_dir = os.path.join(home_dir, '.privet')
-    is_dir = os.path.isdir(privet_dir)
-    if is_dir:
-        words_file = os.path.join(privet_dir, 'words.txt')
-        if not os.path.exists(words_file):
-            copy_words_file()
-    else:
-        os.mkdir(privet_dir)
-        copy_words_file()
-
-
 def visualize_doc(filename):
     '''
     A test method / devtool to examine visualizations of
     trained models, pattern matches and keyword matches.
     '''
-    filename_p = Path(filename)
-    supported_extensions = ['.txt', '.pdf']
     default_context = 'Australia'
-    if filename_p.is_file():
-        extn = filename_p.suffix
-        if extn in supported_extensions:
-            content = None
-            if extn == '.txt':
-                txt_doc = text.Text(filename)
-                content = txt_doc.content()
-            if extn == '.pdf':
-                pdf_doc = pdf.Pdf(filename)
-                content = pdf_doc.content()
-            nlp_searcher = nlpsearcher.NLPSearcher(default_context)
-            nlp_searcher.visualize(content)
-        else:
-            print('Unsupported file format. Must be one of',
-                  supported_extensions)
-            return
-    else:
-        print(filename, ' must be a file of one of these types ',
-              supported_extensions)
-        return
+    nlp_searcher = nlpsearcher.NLPSearcher(default_context)
+    nlp_searcher.visualize(filename)
+    return
 
 
 if __name__ == '__main__':
 
-    privet_init()
     parser = argparse.ArgumentParser(
         description="Search for confidential data in files")
     parser.add_argument('-f',
@@ -109,8 +78,9 @@ if __name__ == '__main__':
         help='search namespace can indicate region or search domain')
     parser.add_argument('-v',
                         '--verbose',
-                        action='store_true',
-                        help='verbose output')
+                        action='count',
+                        help='verbose output',
+                        default=0)
     parser.add_argument('-z',
                         '--visualize',
                         metavar='/path/to/file',

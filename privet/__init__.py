@@ -13,24 +13,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import pathlib
-import os
-import sys
-
-
-def init():
-    if len(sys.argv) == 1:
-        return
-    if len(wordset) > 0:
-        return
-    home_dir = pathlib.Path.home()
-    privet_words_file = os.path.join(home_dir, '.privet', 'words.txt')
-    with open(privet_words_file, 'r') as fp:
-        for line in fp:
-            wordset.add(line.strip().lower())
-
-
-# load word list
-wordset = set()
-init()

@@ -17,12 +17,14 @@
 # list of all bank names by alphabetical order
 # source https://en.wikipedia.org/wiki/List_of_banks_in_Australia
 
-import json
+import pathlib
 
 from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher
+from tabulate import tabulate
 
 from privet.types.matcher_base import MatcherBase
+from privet.types import cards
 
 bank_names = [
     'Alex Bank', 'AMP Bank', 'Australia & New Zealand Banking Group (ANZ)',
@@ -167,12 +169,18 @@ class Australia(MatcherBase):
         self.ruler = None
         self.setup_complete = False
 
-    def re_list(self):
+    def re_dict(self):
         '''
-        re_list returns the list of regular expression patterns
+        re_dict returns the list of regular expression patterns
         that needs to be matched against the document.
         '''
-        return regexp_email
+        # NOTE if there are multiple patterns under a single category
+        # like email. Just append them all into a single list.
+        search_patterns = {
+            'email': regexp_email,
+            'credit-card': cards.any_cards
+        }
+        return search_patterns
 
     def setup_patterns(self, nlp: English):
         '''
@@ -184,10 +192,11 @@ class Australia(MatcherBase):
 
         keywords = {
             'Finance': finance_keywords,
-            'DriversLicense': drivers_license_keywords,
+            'Drivers License': drivers_license_keywords,
             'Medicare': medicare_keywords,
             'Passport': passport_keywords,
             'TFN': tfn_keywords,
+            'Credit Card': cards.keywords
         }
         self.matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
         for name, kws in keywords.items():
@@ -220,4 +229,47 @@ class Australia(MatcherBase):
         return keywords
 
     def analyze(self, search_results):
-        print(json.dumps(search_results), indent=4, sort_keys=True)
+        table = []
+        for filename, details in search_results.items():
+            row = []
+            row.append(pathlib.Path(filename).name)
+            entity = details['entities']
+            is_bank = False
+            if entity.get('BANK') is not None:
+                row.append('Bank')
+                is_bank = True
+            if entity.get('ORG') is not None:
+                if not is_bank:
+                    row.append('Other')
+
+            if entity.get('PERSON') is not None:
+                row.append('Person')
+            else:
+                row.append(' ')
+
+            if entity.get('ACCOUNT_NUMBER') is not None:
+                row.append('Yes')
+            else:
+                row.append(' ')
+            if entity.get('BSB_NUMBER') is not None:
+                row.append('Yes')
+            else:
+                row.append(' ')
+            if entity.get('LOC') is not None:
+                row.append('Yes')
+            else:
+                row.append(' ')
+            kw_types = [kw_cat for kw_cat in details['keywords']]
+            if len(kw_types) > 0:
+                row.append(', '.join(kw_types))
+            else:
+                row.append('None')
+            table.append(row)
+        print(
+            tabulate(table,
+                     headers=[
+                         'Filename', 'Organization Type', 'Person',
+                         'Account Number', 'BSB Number', 'Location',
+                         'Keyword Categories'
+                     ],
+                     tablefmt='mixed_grid'))

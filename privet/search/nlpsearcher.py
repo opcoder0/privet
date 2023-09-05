@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import re
+import pathlib
 
 import spacy
 from spacy import displacy
@@ -56,17 +57,38 @@ class NLPSearcher:
         else:
             raise InvalidContextException()
 
-    def visualize(self, doc, style="ent"):
-        if isinstance(doc, Doc):
-            displacy.serve(doc, style)
-        elif isinstance(doc, str):
-            nlp_doc = self.nlp(doc)
-            displacy.serve(nlp_doc, style)
+    def visualize(self, filename, style="ent"):
+        supported_extensions = ['.txt', '.pdf']
+        filename_p = pathlib.Path(filename)
+        if filename_p.is_file():
+            extn = filename_p.suffix
+            if extn in supported_extensions:
+                content = None
+                if extn == '.txt':
+                    txt_doc = text.Text(filename)
+                    content = txt_doc.content()
+                if extn == '.pdf':
+                    pdf_doc = pdf.Pdf(filename)
+                    content = pdf_doc.content()
+                if content is not None:
+                    _, _, _, doc = self._search(content, self.matcher_base,
+                                                False)
+                    print()
+                    print("NOTE: This flag is a developer option \
+                        to view model's entity \
+                        recognition and matches. The option will \
+                        be deprecated")
+                    print()
+                    displacy.serve(doc, style='ent')
+            else:
+                print('Unsupported file type')
+                return
         else:
-            print('Invalid doc format')
+            print(f'{filename} is not a file')
+            return
 
-    def search(self, file_paths, extn, verbose=False):
-        search_results = []
+    def search(self, file_paths, extn, verbose=0):
+        search_results = {}
         filenames = self.pathfinder.findfiles(file_paths, extn, True)
         for filename in filenames:
             if extn == 'pdf':
@@ -74,11 +96,12 @@ class NLPSearcher:
             else:
                 doc = text.Text(filename)
             doc_text = doc.as_text()
-            result = {}
-            ent_by_type, kw_by_type, matches = self._search(
+            ent_by_type, kw_by_type, match_by_type, _ = self._search(
                 doc_text, self.matcher_base, verbose)
-            result[filename] = (ent_by_type, kw_by_type, matches)
-            search_results.append(result)
+            search_results[filename] = {}
+            search_results[filename]['entities'] = ent_by_type
+            search_results[filename]['keywords'] = kw_by_type
+            search_results[filename]['regexp'] = match_by_type
         return search_results
 
     def analyze(self, search_results):
@@ -89,35 +112,43 @@ class NLPSearcher:
         matcher_base.setup_patterns(self.nlp)
         doc = self.nlp(doc_text)
         # self.pipeline.visualize(doc)
-        entities = self.entities(doc)
+        entities = self.entities(doc, verbose)
         keywords_by_type = matcher_base.search_keywords(self.nlp, doc)
-        pattern_matches = self.patterns(doc, matcher_base.re_list())
-        return entities, keywords_by_type, pattern_matches
+        pattern_matches = self.patterns(doc, matcher_base.re_dict())
+        return entities, keywords_by_type, pattern_matches, doc
 
-    def entities(self, doc):
+    def entities(self, doc, verbose):
         '''
         entities create map of entities by type
         '''
         entities = {}
+        if verbose > 1:
+            entities['text'] = {}
         for ent in doc.ents:
             if ent.label_ in entities:
                 entities[ent.label_] += 1
+                if verbose > 1:
+                    entities['text'][ent.label_].append(ent.text)
             else:
                 entities[ent.label_] = 1
+                if verbose > 1:
+                    entities['text'][ent.label_] = [ent.text]
         return entities
 
-    def patterns(self, doc, re_list):
+    def patterns(self, doc, regexes):
         '''
-        patterns grep all the patterns in the re_list in the doc
+        patterns grep all the patterns in the re_dict in the doc
         and return the matches
         '''
-        if re_list is None or len(re_list) == 0:
-            return []
-        pattern_matches = set()
-        for regexp in re_list:
-            for match in re.finditer(regexp, doc.text):
-                start, end = match.span()
-                span = doc.char_span(start, end)
-                if span is not None:
-                    pattern_matches.add(span.text)
-        return list(pattern_matches)
+        if regexes is None or len(regexes) == 0:
+            return {}
+        p_match = {}
+        for category, regexps in regexes.items():
+            p_match[category] = []
+            for regexp in regexps:
+                for match in re.finditer(regexp, doc.text):
+                    start, end = match.span()
+                    span = doc.char_span(start, end)
+                    if span is not None:
+                        p_match[category].append(span.text)
+        return p_match
