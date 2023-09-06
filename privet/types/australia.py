@@ -238,38 +238,51 @@ class Australia(MatcherBase):
             if entity.get('BANK') is not None:
                 row.append('Bank')
                 is_bank = True
-            if entity.get('ORG') is not None:
-                if not is_bank:
+            else:
+                if entity.get('ORG') is not None:
                     row.append('Other')
+                else:
+                    row.append('None')
 
             if entity.get('PERSON') is not None:
-                row.append('Person')
+                row.append('Yes')
             else:
-                row.append(' ')
+                row.append('No')
 
             if entity.get('ACCOUNT_NUMBER') is not None:
-                row.append('Yes')
+                row.append('Likely')
             else:
-                row.append(' ')
+                row.append('Unlikely')
+
             if entity.get('BSB_NUMBER') is not None:
-                row.append('Yes')
+                row.append('Likely')
             else:
-                row.append(' ')
-            if entity.get('LOC') is not None:
-                row.append('Yes')
-            else:
-                row.append(' ')
+                row.append('Unlikely')
+
             kw_types = [kw_cat for kw_cat in details['keywords']]
             if len(kw_types) > 0:
                 row.append(', '.join(kw_types))
             else:
                 row.append('None')
+
+            regex_matches = details['regexp']
+            if 'credit-card' in regex_matches and len(
+                    regex_matches['credit-card']) > 0:
+                row.append('Likely')
+            else:
+                row.append('Unlikely')
+
+            if 'email' in regex_matches and len(regex_matches['email']) > 0:
+                row.append('Likely')
+            else:
+                row.append('Unlikely')
+
             table.append(row)
         print(
             tabulate(table,
                      headers=[
                          'Filename', 'Organization Type', 'Person',
-                         'Account Number', 'BSB Number', 'Location',
-                         'Keyword Categories'
+                         'Account Number', 'BSB Number', 'Keyword Categories',
+                         'Credit Card No.', 'Email'
                      ],
                      tablefmt='mixed_grid'))
